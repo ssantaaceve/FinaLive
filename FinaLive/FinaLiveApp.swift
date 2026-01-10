@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 @main
 struct FinaLiveApp: App {
     var body: some Scene {
