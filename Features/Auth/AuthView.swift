@@ -10,8 +10,14 @@ import SwiftUI
 /// Vista principal de autenticación
 /// Maneja el cambio entre Login y Sign Up
 struct AuthView: View {
-    @StateObject private var viewModel = AuthViewModel()
     @ObservedObject var router: AppRouter
+    
+    @StateObject private var viewModel: AuthViewModel
+    
+    init(router: AppRouter) {
+        self.router = router
+        _viewModel = StateObject(wrappedValue: AuthViewModel(router: router))
+    }
     
     var body: some View {
         GeometryReader { geometry in

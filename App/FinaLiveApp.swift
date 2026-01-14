@@ -22,6 +22,8 @@ struct FinaLiveApp: App {
         switch router.currentView {
         case .onboarding:
             OnboardingView(router: router)
+        case .auth:
+            AuthView(router: router)
         case .home:
             HomeView(router: router)
         }

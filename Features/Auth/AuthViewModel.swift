@@ -11,11 +11,19 @@ import Foundation
 /// Maneja la lógica de login, sign up y validaciones
 @MainActor
 class AuthViewModel: ObservableObject {
+    // MARK: - Properties
+    
+    weak var router: AppRouter?
+    
     // MARK: - Published Properties
     
     @Published var authMode: AuthMode = .login
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    
+    init(router: AppRouter?) {
+        self.router = router
+    }
     
     // MARK: - Login Properties
     @Published var loginEmail: String = ""
@@ -66,7 +74,7 @@ class AuthViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         
         isLoading = false
-        // En el futuro: navegar a home o manejar error
+        router?.navigateToHome()
     }
     
     func signUp() async {
@@ -83,7 +91,7 @@ class AuthViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         
         isLoading = false
-        // En el futuro: navegar a home o manejar error
+        router?.navigateToHome()
     }
     
     func signInWithApple() async {
@@ -94,6 +102,7 @@ class AuthViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         
         isLoading = false
+        router?.navigateToHome()
     }
     
     // MARK: - Private
