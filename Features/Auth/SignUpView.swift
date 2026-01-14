@@ -66,7 +66,7 @@ struct SignUpView: View {
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
-                .textInputAutocorrectionDisabled()
+                .autocorrectionDisabled()
                 .focused($focusedField, equals: .email)
                 .padding(AppSpacing.md)
                 .background {
@@ -136,6 +136,6 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView(viewModel: AuthViewModel())
+    SignUpView(viewModel: AuthViewModel(router: nil))
         .padding()
 }
