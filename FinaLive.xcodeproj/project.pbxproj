@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		006650EE2F172A8600A2FDF6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 006650ED2F172A8300A2FDF6 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		006650CD2F11E14500A2FDF6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		006650BF2F11E14200A2FDF6 /* FinaLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinaLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		006650CC2F11E14500A2FDF6 /* FinaLiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinaLiveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		006650D62F11E14500A2FDF6 /* FinaLiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinaLiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		006650ED2F172A8300A2FDF6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +80,7 @@
 		006650B62F11E14200A2FDF6 = {
 			isa = PBXGroup;
 			children = (
+				006650ED2F172A8300A2FDF6 /* README.md */,
 				006650C12F11E14200A2FDF6 /* FinaLive */,
 				006650CF2F11E14500A2FDF6 /* FinaLiveTests */,
 				006650D92F11E14500A2FDF6 /* FinaLiveUITests */,
@@ -212,6 +218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				006650EE2F172A8600A2FDF6 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
