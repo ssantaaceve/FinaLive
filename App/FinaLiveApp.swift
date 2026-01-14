@@ -13,12 +13,17 @@ struct FinaLiveApp: App {
     
     var body: some Scene {
         WindowGroup {
-            switch router.currentView {
-            case .onboarding:
-                OnboardingView(router: router)
-            case .home:
-                HomeView(router: router)
-            }
+            rootView
+        }
+    }
+    
+    @ViewBuilder
+    private var rootView: some View {
+        switch router.currentView {
+        case .onboarding:
+            OnboardingView(router: router)
+        case .home:
+            HomeView(router: router)
         }
     }
 }

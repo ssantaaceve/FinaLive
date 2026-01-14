@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import SwiftUI
 
 /// ViewModel para agregar una nueva transacción
 /// Maneja la lógica de validación y guardado de transacciones
+@MainActor
 class AddTransactionViewModel: ObservableObject {
     @Published var amount: String = ""
     @Published var description: String = ""
@@ -17,13 +17,21 @@ class AddTransactionViewModel: ObservableObject {
     @Published var isSaving: Bool = false
     
     var isValid: Bool {
-        !amount.isEmpty && Double(amount) != nil
+        guard !amount.isEmpty,
+              let amountValue = Double(amount) else {
+            return false
+        }
+        return amountValue > 0
+    }
+    
+    var numericAmount: Double? {
+        Double(amount)
     }
     
     func saveTransaction() {
         guard isValid else { return }
         
-        // TODO: Implementar guardado de transacción
+        // TODO: Implementar guardado de transacción en servicio
         // Por ahora solo validamos
         
         clearForm()

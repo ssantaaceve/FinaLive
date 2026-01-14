@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import SwiftUI
 
 /// ViewModel para la pantalla principal
 /// Maneja la lógica de presentación de datos y acciones del usuario
+@MainActor
 class HomeViewModel: ObservableObject {
     @Published var balance: Double = 0.0
     @Published var isLoading: Bool = false
@@ -18,13 +18,22 @@ class HomeViewModel: ObservableObject {
         loadData()
     }
     
+    var formattedBalance: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale.current
+        return formatter.string(from: NSNumber(value: balance)) ?? "$0.00"
+    }
+    
     func loadData() {
-        // TODO: Cargar datos de transacciones
+        // TODO: Cargar datos de transacciones desde servicio
         isLoading = false
     }
     
-    func refresh() {
+    func refreshAsync() async {
         isLoading = true
+        // Simular carga asíncrona
+        try? await Task.sleep(nanoseconds: 500_000_000)
         loadData()
     }
 }
