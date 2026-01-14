@@ -18,7 +18,7 @@ struct OnboardingView: View {
             ZStack {
                 // Fondo con gradiente sutil
                 LinearGradient(
-                    colors: [Color(.systemBackground), Color(.systemBackground).opacity(0.8)],
+                    colors: [AppColors.background, AppColors.background.opacity(0.8)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -30,15 +30,15 @@ struct OnboardingView: View {
                     iconSection
                     
                     Spacer()
-                        .frame(height: 40)
+                        .frame(height: AppSpacing.lg + AppSpacing.md)
                     
                     contentSection
                     
                     Spacer()
                     
                     actionSection
-                        .padding(.horizontal, 32)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + 32)
+                        .padding(.horizontal, AppSpacing.lg)
+                        .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
                 }
             }
         }
@@ -51,20 +51,20 @@ struct OnboardingView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 120, height: 120)
-            .foregroundStyle(.blue.gradient)
-            .shadow(color: .blue.opacity(0.3), radius: 20, x: 0, y: 10)
+            .foregroundStyle(AppColors.primary.gradient)
+            .shadow(color: AppColors.primary.opacity(0.3), radius: 20, x: 0, y: 10)
     }
     
     private var contentSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppSpacing.md) {
             Text("Bienvenido a FinaLive")
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(AppFonts.title)
             
             Text("Gestiona tus finanzas de manera simple")
-                .font(.body)
+                .font(AppFonts.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, AppSpacing.lg)
         }
     }
     

@@ -18,9 +18,9 @@ struct CardView<Content: View>: View {
     
     var body: some View {
         content
-            .padding()
+            .padding(AppSpacing.md)
             .background {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: AppSpacing.lg)
                     .fill(.ultraThinMaterial)
                     .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
             }
@@ -29,13 +29,13 @@ struct CardView<Content: View>: View {
 
 #Preview {
     CardView {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Balance Total")
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .font(AppFonts.headline)
+                .foregroundStyle(.secondary)
             Text("$1,234.56")
                 .font(.system(size: 48, weight: .bold))
         }
     }
-    .padding()
+    .padding(AppSpacing.md)
 }

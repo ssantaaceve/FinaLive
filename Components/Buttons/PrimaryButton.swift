@@ -18,13 +18,13 @@ struct PrimaryButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.headline)
+                .font(AppFonts.headline)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, AppSpacing.md)
                 .background {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.blue.gradient)
+                    RoundedRectangle(cornerRadius: AppSpacing.md)
+                        .fill(AppColors.primary.gradient)
                 }
                 .scaleEffect(isPressed ? 0.98 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: isPressed)

@@ -17,12 +17,12 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: AppSpacing.lg) {
                     balanceCard
                     
                     transactionsSection
                 }
-                .padding()
+                .padding(AppSpacing.md)
             }
             .navigationTitle("FinaLive")
             .toolbar {
@@ -31,7 +31,7 @@ struct HomeView: View {
                         showAddTransaction = true
                     }) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.title2)
+                            .font(AppFonts.title2)
                     }
                 }
             }
@@ -48,9 +48,9 @@ struct HomeView: View {
     
     private var balanceCard: some View {
         CardView {
-            VStack(spacing: 12) {
+            VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
                 Text("Balance Total")
-                    .font(.headline)
+                    .font(AppFonts.headline)
                     .foregroundStyle(.secondary)
                 
                 Text(viewModel.formattedBalance)
@@ -62,10 +62,10 @@ struct HomeView: View {
     }
     
     private var transactionsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: AppSpacing.md) {
             if viewModel.isLoading {
                 ProgressView()
-                    .padding()
+                    .padding(AppSpacing.md)
             } else {
                 emptyStateView
             }
@@ -73,21 +73,21 @@ struct HomeView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
             Image(systemName: "list.bullet.rectangle")
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
             
             Text("No hay transacciones aún")
-                .font(.headline)
+                .font(AppFonts.headline)
                 .foregroundStyle(.secondary)
             
             Text("Toca el botón + para agregar tu primera transacción")
-                .font(.subheadline)
+                .font(AppFonts.body)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
         }
-        .padding(.vertical, 40)
+        .padding(.vertical, AppSpacing.lg + AppSpacing.md)
     }
 }
 
