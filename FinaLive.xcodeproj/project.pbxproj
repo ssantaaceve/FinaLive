@@ -184,6 +184,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				006651212F17339100A2FDF6 /* Components */,
+				006651252F17339100A2FDF6 /* Core */,
 			);
 			name = FinaLive;
 			packageProductDependencies = (
