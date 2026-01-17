@@ -85,7 +85,7 @@ struct OnboardingView: View {
             ) {
                 if viewModel.currentStep == viewModel.totalSteps - 1 {
                     viewModel.completeOnboarding()
-                    router.navigateToAuth()
+                    router.navigateToHome()
                 } else {
                     viewModel.nextStep()
                 }
