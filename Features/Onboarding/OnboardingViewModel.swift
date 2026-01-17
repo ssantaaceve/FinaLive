@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// ViewModel para el onboarding de 3 pantallas
 /// Maneja el estado de cada paso y la navegación
