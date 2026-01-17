@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		006650EE2F172A8600A2FDF6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 006650ED2F172A8300A2FDF6 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		006650CD2F11E14500A2FDF6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,14 +31,44 @@
 		006650BF2F11E14200A2FDF6 /* FinaLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinaLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		006650CC2F11E14500A2FDF6 /* FinaLiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinaLiveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		006650D62F11E14500A2FDF6 /* FinaLiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinaLiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		006650ED2F172A8300A2FDF6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		006650C12F11E14200A2FDF6 /* FinaLive */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FinaLive;
-			sourceTree = "<group>";
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0066513D2F17339100A2FDF6 /* Exceptions for "App" folder in "FinaLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppRouter.swift,
+				FinaLiveApp.swift,
+			);
+			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
 		};
+		0066513E2F17339100A2FDF6 /* Exceptions for "Features" folder in "FinaLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AddTransaction/AddTransactionView.swift,
+				AddTransaction/AddTransactionViewModel.swift,
+				Auth/AuthView.swift,
+				Auth/AuthViewModel.swift,
+				Auth/LoginView.swift,
+				Auth/SignUpView.swift,
+				Home/HomeView.swift,
+				Home/HomeViewModel.swift,
+				Onboarding/OnboardingView.swift,
+				Onboarding/OnboardingViewModel.swift,
+			);
+			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
+		};
+		0066513F2F17339100A2FDF6 /* Exceptions for "Resources" folder in "FinaLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+			);
+			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
 		006650CF2F11E14500A2FDF6 /* FinaLiveTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FinaLiveTests;
@@ -43,6 +77,45 @@
 		006650D92F11E14500A2FDF6 /* FinaLiveUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FinaLiveUITests;
+			sourceTree = "<group>";
+		};
+		0066511E2F17339100A2FDF6 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0066513D2F17339100A2FDF6 /* Exceptions for "App" folder in "FinaLive" target */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		006651212F17339100A2FDF6 /* Components */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Components;
+			sourceTree = "<group>";
+		};
+		006651252F17339100A2FDF6 /* Core */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Core;
+			sourceTree = "<group>";
+		};
+		0066512F2F17339100A2FDF6 /* Features */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0066513E2F17339100A2FDF6 /* Exceptions for "Features" folder in "FinaLive" target */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		006651322F17339100A2FDF6 /* Resources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0066513F2F17339100A2FDF6 /* Exceptions for "Resources" folder in "FinaLive" target */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		006651332F17339100A2FDF6 /* SupportingFiles */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SupportingFiles;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,7 +148,13 @@
 		006650B62F11E14200A2FDF6 = {
 			isa = PBXGroup;
 			children = (
-				006650C12F11E14200A2FDF6 /* FinaLive */,
+				006650ED2F172A8300A2FDF6 /* README.md */,
+				0066511E2F17339100A2FDF6 /* App */,
+				006651212F17339100A2FDF6 /* Components */,
+				006651252F17339100A2FDF6 /* Core */,
+				0066512F2F17339100A2FDF6 /* Features */,
+				006651322F17339100A2FDF6 /* Resources */,
+				006651332F17339100A2FDF6 /* SupportingFiles */,
 				006650CF2F11E14500A2FDF6 /* FinaLiveTests */,
 				006650D92F11E14500A2FDF6 /* FinaLiveUITests */,
 				006650C02F11E14200A2FDF6 /* Products */,
@@ -108,7 +187,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				006650C12F11E14200A2FDF6 /* FinaLive */,
+				006651212F17339100A2FDF6 /* Components */,
+				006651252F17339100A2FDF6 /* Core */,
 			);
 			name = FinaLive;
 			packageProductDependencies = (
@@ -212,6 +292,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				006650EE2F172A8600A2FDF6 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
