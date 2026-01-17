@@ -85,11 +85,11 @@ struct AmountRangeCard: View {
             .frame(maxWidth: .infinity)
             .background {
                 RoundedRectangle(cornerRadius: AppSpacing.md)
-                    .fill(isSelected ? AppColors.primary.gradient : .ultraThinMaterial)
+                    .fill(isSelected ? AnyShapeStyle(AppColors.primary.gradient) : AnyShapeStyle(.ultraThinMaterial))
                     .overlay {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
                             .strokeBorder(
-                                isSelected ? .clear : .quaternary,
+                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(.quaternary),
                                 lineWidth: isSelected ? 0 : 0.5
                             )
                     }

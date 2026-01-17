@@ -10,7 +10,7 @@ import SwiftUI
 /// Router principal de la aplicación que maneja la navegación inicial
 /// y decide qué vista mostrar basado en el estado de la app (ej: onboarding completado)
 class AppRouter: ObservableObject {
-    @Published var currentView: AppView = .auth
+    @Published var currentView: AppView = .onboarding
     
     enum AppView {
         case onboarding
