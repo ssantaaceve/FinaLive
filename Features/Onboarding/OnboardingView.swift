@@ -39,7 +39,8 @@ struct OnboardingView: View {
                     // Botones de navegación
                     navigationSection
                         .padding(.horizontal, AppSpacing.lg)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
+                        .padding(.top, AppSpacing.lg)
+                        .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.xl)
                         .background {
                             Rectangle()
                                 .fill(.ultraThinMaterial)

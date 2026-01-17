@@ -12,16 +12,27 @@ struct OnboardingStep2View: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
-        VStack(spacing: AppSpacing.xl) {
-            headerSection
-            
-            amountRangesList
-            
-            footerNote
-            
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.15)
+                    
+                    VStack(spacing: AppSpacing.xl) {
+                        headerSection
+                        
+                        amountRangesList
+                        
+                        footerNote
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.15)
+                }
+                .frame(minHeight: geometry.size.height)
+            }
         }
-        .padding(.horizontal, AppSpacing.lg)
     }
     
     // MARK: - View Components
@@ -31,7 +42,6 @@ struct OnboardingStep2View: View {
             Text("¿Cuánto te gustaría ahorrar para ese objetivo?")
                 .font(AppFonts.title2)
                 .multilineTextAlignment(.center)
-                .padding(.top, AppSpacing.xl)
         }
     }
     

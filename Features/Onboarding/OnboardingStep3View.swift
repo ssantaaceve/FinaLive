@@ -12,14 +12,25 @@ struct OnboardingStep3View: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
-        VStack(spacing: AppSpacing.xl) {
-            headerSection
-            
-            incentivesList
-            
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.15)
+                    
+                    VStack(spacing: AppSpacing.xl) {
+                        headerSection
+                        
+                        incentivesList
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.15)
+                }
+                .frame(minHeight: geometry.size.height)
+            }
         }
-        .padding(.horizontal, AppSpacing.lg)
     }
     
     // MARK: - View Components
@@ -29,7 +40,6 @@ struct OnboardingStep3View: View {
             Text("¿Te motivaría más ahorrar si recibes beneficios por cumplir tu meta?")
                 .font(AppFonts.title2)
                 .multilineTextAlignment(.center)
-                .padding(.top, AppSpacing.xl)
         }
     }
     
@@ -41,7 +51,11 @@ struct OnboardingStep3View: View {
                     isSelected: viewModel.selectedIncentive == incentive
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        viewModel.selectedIncentive = incentive
+                        if viewModel.selectedIncentive == incentive {
+                            viewModel.selectedIncentive = nil
+                        } else {
+                            viewModel.selectedIncentive = incentive
+                        }
                     }
                 }
             }

@@ -17,14 +17,25 @@ struct OnboardingStep1View: View {
     ]
     
     var body: some View {
-        VStack(spacing: AppSpacing.xl) {
-            headerSection
-            
-            goalsGrid
-            
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.1)
+                    
+                    VStack(spacing: AppSpacing.xl) {
+                        headerSection
+                        
+                        goalsGrid
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    
+                    Spacer()
+                        .frame(height: geometry.size.height * 0.1)
+                }
+                .frame(minHeight: geometry.size.height)
+            }
         }
-        .padding(.horizontal, AppSpacing.lg)
     }
     
     // MARK: - View Components
@@ -34,21 +45,32 @@ struct OnboardingStep1View: View {
             Text("¿Para qué te gustaría ahorrar primero?")
                 .font(AppFonts.title2)
                 .multilineTextAlignment(.center)
-                .padding(.top, AppSpacing.xl)
         }
     }
     
     private var goalsGrid: some View {
         LazyVGrid(columns: columns, spacing: AppSpacing.md) {
             ForEach(OnboardingViewModel.SavingsGoal.allCases, id: \.self) { goal in
+                let isOtherEditing = goal == .other && viewModel.selectedGoal == .other
+                
                 GoalCard(
                     goal: goal,
-                    isSelected: viewModel.selectedGoal == goal
+                    isSelected: viewModel.selectedGoal == goal,
+                    customText: $viewModel.customGoalText
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        viewModel.selectedGoal = goal
+                        if viewModel.selectedGoal == goal {
+                            viewModel.selectedGoal = nil
+                            viewModel.customGoalText = ""
+                        } else {
+                            viewModel.selectedGoal = goal
+                            if goal != .other {
+                                viewModel.customGoalText = ""
+                            }
+                        }
                     }
                 }
+                .gridCellColumns(isOtherEditing ? 2 : 1)
             }
         }
     }
@@ -59,9 +81,38 @@ struct OnboardingStep1View: View {
 struct GoalCard: View {
     let goal: OnboardingViewModel.SavingsGoal
     let isSelected: Bool
+    @Binding var customText: String
     let action: () -> Void
     
+    @FocusState private var isTextFieldFocused: Bool
+    
+    private var showTextField: Bool {
+        goal == .other && isSelected
+    }
+    
     var body: some View {
+        VStack(spacing: 0) {
+            // Contenido principal: Card normal o TextField
+            if showTextField {
+                textFieldView
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
+            } else {
+                buttonContentView
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
+            }
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showTextField)
+    }
+    
+    // MARK: - View Components
+    
+    private var buttonContentView: some View {
         Button(action: action) {
             VStack(spacing: AppSpacing.md) {
                 Image(systemName: goal.icon)
@@ -97,6 +148,42 @@ struct GoalCard: View {
             )
         }
         .buttonStyle(.plain)
+    }
+    
+    private var textFieldView: some View {
+        HStack(spacing: AppSpacing.md) {
+            // Ícono a la izquierda
+            Image(systemName: goal.icon)
+                .font(.system(size: 24, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(width: 32)
+            
+            // TextField integrado
+            TextField("Escribe para qué ahorras", text: $customText)
+                .font(AppFonts.body)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.leading)
+                .focused($isTextFieldFocused)
+                .onAppear {
+                    // Auto-focus cuando aparece el TextField
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        isTextFieldFocused = true
+                    }
+                }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 80)
+        .padding(.horizontal, AppSpacing.md)
+        .background {
+            RoundedRectangle(cornerRadius: AppSpacing.md)
+                .fill(AnyShapeStyle(AppColors.primary.gradient))
+        }
+        .shadow(
+            color: AppColors.primary.opacity(0.3),
+            radius: 8,
+            x: 0,
+            y: 4
+        )
     }
 }
 

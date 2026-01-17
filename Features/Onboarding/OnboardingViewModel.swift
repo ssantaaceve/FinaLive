@@ -20,6 +20,7 @@ class OnboardingViewModel: ObservableObject {
     // MARK: - Step 1: Objetivo de ahorro
     
     @Published var selectedGoal: SavingsGoal?
+    @Published var customGoalText: String = ""
     
     enum SavingsGoal: String, CaseIterable {
         case travel = "Viajes"
@@ -68,17 +69,17 @@ class OnboardingViewModel: ObservableObject {
     @Published var selectedIncentive: Incentive?
     
     enum Incentive: String, CaseIterable {
-        case discounts = "Descuentos relacionados con mi objetivo"
-        case rewards = "Recompensas exclusivas"
-        case achievements = "Logros / niveles"
-        case none = "No me motiva"
+        case discounts = "Descuentos especiales"
+        case rewards = "Recompensas por cumplir tus metas"
+        case achievements = "Logros y niveles"
+        case exclusive = "Beneficios exclusivos"
         
         var icon: String {
             switch self {
             case .discounts: return "tag"
             case .rewards: return "gift"
             case .achievements: return "trophy"
-            case .none: return "xmark.circle"
+            case .exclusive: return "star"
             }
         }
     }
@@ -87,7 +88,11 @@ class OnboardingViewModel: ObservableObject {
     
     var canGoToNextStep: Bool {
         switch currentStep {
-        case 0: return selectedGoal != nil
+        case 0:
+            if selectedGoal == .other {
+                return selectedGoal != nil && !customGoalText.trimmingCharacters(in: .whitespaces).isEmpty
+            }
+            return selectedGoal != nil
         case 1: return selectedAmountRange != nil
         case 2: return selectedIncentive != nil
         default: return false
