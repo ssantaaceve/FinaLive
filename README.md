@@ -129,6 +129,78 @@ Quiero código simple, escalable y bien organizado.
 No agregues lógica innecesaria.
 
 
+Eres un senior iOS developer especializado en SwiftUI.
+
+Estoy desarrollando un MVP iOS con SwiftUI y arquitectura MVVM ligera.
+El proyecto sigue un Design System definido.
+
+Reglas obligatorias:
+- Usar colores y tipografías desde DesignSystem.swift
+- No hardcodear colores ni fuentes
+- Seguir lineamientos visuales modernos de Apple (Liquid Glass)
+- UI limpia, clara y con buen espaciado
+- Componentes reutilizables cuando tenga sentido
+- Evitar sobrecargar la interfaz
+
+Prioriza código limpio, escalable y mantenible.
+Evita overengineering y código repetitivo.
+Explica brevemente antes de mostrar código.
+
+
+Estoy trabajando en el feature Onboarding.
+Quiero crear la segunda pantalla con un input de ingresos mensuales.
+Debe ser simple, accesible y fácil de entender.
+No incluyas lógica de backend.
+
+
+--------------------------------------
+Errores
+Eres un senior iOS developer experto en SwiftUI y MVVM.
+
+Tengo un error de compilación en Xcode.
+
+Contexto del proyecto:
+- MVP iOS en SwiftUI
+- Arquitectura MVVM ligera
+- Código limpio y escalable
+- Design System definido (no hardcodear colores ni fuentes)
+
+Error exacto de Xcode:
+Cannot find 'AuthView' in scope
+
+
+Archivo:
+FinaLiveApp.swift
+
+Línea aproximada:
+    @ViewBuilder
+    private var rootView: some View {
+        switch router.currentView {
+        case .onboarding:
+            OnboardingView(router: router)
+        case .auth:
+            AuthView(router: router)
+        case .home:
+            HomeView(router: router)
+        }
+    }
+
+
+Código relevante:
+[pega solo el bloque relacionado]
+
+Qué intento hacer:
+[describe brevemente el objetivo]
+
+Necesito:
+- Identificar la causa real del error
+- Proponer una solución alineada con MVVM
+- Mantener la arquitectura y reglas del proyecto
+- Evitar soluciones temporales o hacks
+
+Explica brevemente el problema antes de mostrar el código corregido.
+
+
 ---
 
 ## 🧭 Metodología de Desarrollo
@@ -152,7 +224,6 @@ Siempre se trabaja en un solo feature a la vez.
 - [ ] Persistencia con Supabase
 - [ ] IA ligera (insights)
 - [ ] Monetización
-
 
 
 
