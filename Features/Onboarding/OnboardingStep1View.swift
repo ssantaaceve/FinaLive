@@ -163,6 +163,7 @@ struct GoalCard: View {
             TextField("Escribe para qué ahorras", text: $customText)
                 .font(AppFonts.body)
                 .foregroundStyle(.white)
+                .tint(.white)
                 .multilineTextAlignment(.leading)
                 .focused($isTextFieldFocused)
                 .onAppear {

@@ -37,16 +37,22 @@ struct OnboardingView: View {
                     .animation(.easeInOut(duration: 0.3), value: viewModel.currentStep)
                     
                     // Botones de navegación
-                    navigationSection
-                        .padding(.horizontal, AppSpacing.lg)
-                        .padding(.top, AppSpacing.lg)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.xl)
-                        .background {
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                                .background(AppColors.backgroundPrimary)
-                                .ignoresSafeArea(edges: .bottom)
-                        }
+                    VStack(spacing: 0) {
+                        // Separador sutil
+                        Rectangle()
+                            .fill(AppColors.border.opacity(0.2))
+                            .frame(height: 0.5)
+                        
+                        navigationSection
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.top, AppSpacing.lg)
+                            .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
+                    }
+                    .background {
+                        Rectangle()
+                            .fill(AppColors.backgroundPrimary)
+                            .ignoresSafeArea(edges: .bottom)
+                    }
                 }
             }
         }
@@ -66,15 +72,15 @@ struct OnboardingView: View {
                         Text("Atrás")
                             .font(AppFonts.body)
                     }
-                    .foregroundStyle(AppColors.textSecondary)
+                    .foregroundStyle(AppColors.textPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppSpacing.md)
                     .background {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
-                            .fill(.ultraThinMaterial)
+                            .fill(AppColors.surfacePrimary)
                             .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.md)
-                                .strokeBorder(AppColors.border, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 1)
                             }
                     }
                 }

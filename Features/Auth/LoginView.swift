@@ -47,12 +47,13 @@ struct LoginView: View {
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
                                 .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     
@@ -70,12 +71,13 @@ struct LoginView: View {
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
                                 .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     

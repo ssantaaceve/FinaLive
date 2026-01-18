@@ -37,15 +37,22 @@ struct AuthView: View {
         }
         .background(AppColors.background)
         .safeAreaInset(edge: .bottom) {
-            bottomSection
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.bottom, AppSpacing.md)
-                .background {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .background(AppColors.backgroundPrimary)
-                        .ignoresSafeArea(edges: .bottom)
-                }
+            VStack(spacing: 0) {
+                // Separador sutil
+                Rectangle()
+                    .fill(AppColors.border.opacity(0.2))
+                    .frame(height: 0.5)
+                
+                bottomSection
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.top, AppSpacing.lg)
+                    .padding(.bottom, AppSpacing.lg)
+            }
+            .background {
+                Rectangle()
+                    .fill(AppColors.backgroundPrimary)
+                    .ignoresSafeArea(edges: .bottom)
+            }
         }
     }
     
@@ -133,6 +140,7 @@ struct AuthView: View {
             .opacity(viewModel.isLoading ? 0.6 : 1.0)
             
             toggleAuthModeButton
+                .padding(.bottom, AppSpacing.xs)
         }
     }
     
