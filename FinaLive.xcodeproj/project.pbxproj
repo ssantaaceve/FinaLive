@@ -54,11 +54,11 @@
 				Auth/SignUpView.swift,
 				Home/HomeView.swift,
 				Home/HomeViewModel.swift,
-				Onboarding/OnboardingView.swift,
-				Onboarding/OnboardingViewModel.swift,
 				Onboarding/OnboardingStep1View.swift,
 				Onboarding/OnboardingStep2View.swift,
 				Onboarding/OnboardingStep3View.swift,
+				Onboarding/OnboardingView.swift,
+				Onboarding/OnboardingViewModel.swift,
 			);
 			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
 		};

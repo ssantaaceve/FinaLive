@@ -16,9 +16,8 @@ struct OnboardingView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Fondo
-                AppColors.background
-                    .ignoresSafeArea()
+                // Fondo gradiente
+                AppBackground()
                 
                 VStack(spacing: 0) {
                     // Pager con las 3 pantallas
@@ -32,8 +31,7 @@ struct OnboardingView: View {
                         OnboardingStep3View(viewModel: viewModel)
                             .tag(2)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .always))
-                    .indexViewStyle(.page(backgroundDisplayMode: .always))
+                    .tabViewStyle(.page(indexDisplayMode: .never))
                     .animation(.easeInOut(duration: 0.3), value: viewModel.currentStep)
                     
                     // Botones de navegación
@@ -49,8 +47,7 @@ struct OnboardingView: View {
                             .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
                     }
                     .background {
-                        Rectangle()
-                            .fill(AppColors.backgroundPrimary)
+                        AppBackground()
                             .ignoresSafeArea(edges: .bottom)
                     }
                 }

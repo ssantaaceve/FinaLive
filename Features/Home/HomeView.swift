@@ -24,7 +24,7 @@ struct HomeView: View {
                 }
                 .padding(AppSpacing.md)
             }
-            .background(AppColors.backgroundPrimary)
+            .background(AppBackground())
             .navigationTitle("FinaLive")
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {

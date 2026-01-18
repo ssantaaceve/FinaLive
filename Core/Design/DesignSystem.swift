@@ -23,11 +23,22 @@ enum AppColors {
     
     // MARK: - Background Colors (Dark Premium)
     
-    /// Fondo principal - NEGRO puro (base del app)
-    static let backgroundPrimary = Color.black // #000000
+    /// Fondo principal - Gradiente elegante y sutil
+    static let backgroundPrimary = Color.black // #000000 (mantiene compatibilidad)
     
     /// Fondo secundario - gris muy oscuro para secciones alternadas
     static let backgroundSecondary = Color(red: 0.11, green: 0.11, blue: 0.12) // #1C1C1E
+    
+    // MARK: - Background Gradient Colors
+    
+    /// Color superior del gradiente - rojo muy oscuro
+    static let gradientTop = Color(red: 0.145, green: 0.0, blue: 0.0) // #250000
+    
+    /// Color medio del gradiente - casi negro con toque azul
+    static let gradientMiddle = Color(red: 0.0, green: 0.0, blue: 0.031) // #000008
+    
+    /// Color inferior del gradiente - verde azulado oscuro
+    static let gradientBottom = Color(red: 0.0, green: 0.271, blue: 0.302) // #00454d
     
     // MARK: - Surface Colors (Cards Dark)
     

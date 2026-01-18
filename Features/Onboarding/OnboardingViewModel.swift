@@ -70,7 +70,7 @@ class OnboardingViewModel: ObservableObject {
     
     enum Incentive: String, CaseIterable {
         case discounts = "Descuentos especiales"
-        case rewards = "Recompensas por cumplir tus metas"
+        case rewards = "Recompensas"
         case achievements = "Logros y niveles"
         case exclusive = "Beneficios exclusivos"
         

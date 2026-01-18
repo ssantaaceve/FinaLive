@@ -35,7 +35,7 @@ struct AuthView: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
-        .background(AppColors.background)
+        .background(AppBackground())
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
                 // Separador sutil
@@ -49,8 +49,7 @@ struct AuthView: View {
                     .padding(.bottom, AppSpacing.lg)
             }
             .background {
-                Rectangle()
-                    .fill(AppColors.backgroundPrimary)
+                AppBackground()
                     .ignoresSafeArea(edges: .bottom)
             }
         }
