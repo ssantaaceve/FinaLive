@@ -15,6 +15,8 @@ class HomeViewModel: ObservableObject {
     @Published var income: Double = 0.0
     @Published var expense: Double = 0.0
     @Published var isLoading: Bool = false
+    @Published var userName: String = "Sergio"
+    @Published var hasNotifications: Bool = false
     
     init() {
         loadData()

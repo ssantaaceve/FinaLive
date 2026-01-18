@@ -16,16 +16,26 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: AppSpacing.lg) {
-                    balanceCard
-                    
-                    transactionsSection
+            VStack(spacing: 0) {
+                // Header personalizado
+                HomeHeaderView(
+                    userName: viewModel.userName,
+                    hasNotifications: viewModel.hasNotifications,
+                    onNotificationsTap: {
+                        // TODO: Navegar a notificaciones
+                    }
+                )
+                
+                ScrollView {
+                    VStack(spacing: AppSpacing.lg) {
+                        balanceCard
+                        
+                        transactionsSection
+                    }
+                    .padding(AppSpacing.md)
                 }
-                .padding(AppSpacing.md)
             }
             .background(AppBackground())
-            .navigationTitle("FinaLive")
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
