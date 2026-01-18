@@ -44,6 +44,7 @@ struct OnboardingStep1View: View {
         VStack(spacing: AppSpacing.md) {
             Text("¿Para qué te gustaría ahorrar primero?")
                 .font(AppFonts.title2)
+                .foregroundStyle(AppColors.textPrimary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -122,7 +123,7 @@ struct GoalCard: View {
                 
                 Text(goal.rawValue)
                     .font(AppFonts.caption)
-                    .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? .white : AppColors.textPrimary)
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
@@ -134,7 +135,7 @@ struct GoalCard: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
                             .strokeBorder(
-                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(.quaternary),
+                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(AppColors.border),
                                 lineWidth: isSelected ? 0 : 0.5
                             )
                     }

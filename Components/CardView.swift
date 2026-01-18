@@ -22,7 +22,7 @@ struct CardView<Content: View>: View {
             .background {
                 RoundedRectangle(cornerRadius: AppSpacing.lg)
                     .fill(.ultraThinMaterial)
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                    .shadow(color: .black.opacity(0.5), radius: 12, x: 0, y: 4)
             }
     }
 }
@@ -32,7 +32,7 @@ struct CardView<Content: View>: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Balance Total")
                 .font(AppFonts.headline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             Text("$1,234.56")
                 .font(.system(size: 48, weight: .bold))
         }

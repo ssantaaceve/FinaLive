@@ -41,6 +41,7 @@ struct OnboardingStep2View: View {
         VStack(spacing: AppSpacing.md) {
             Text("¿Cuánto te gustaría ahorrar para ese objetivo?")
                 .font(AppFonts.title2)
+                .foregroundStyle(AppColors.textPrimary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -61,9 +62,9 @@ struct OnboardingStep2View: View {
     }
     
     private var footerNote: some View {
-        Text("Puedes cambiar esta meta en cualquier momento")
-            .font(AppFonts.caption)
-            .foregroundStyle(.secondary)
+            Text("Puedes cambiar esta meta en cualquier momento")
+                .font(AppFonts.caption)
+                .foregroundStyle(AppColors.textSecondary)
             .multilineTextAlignment(.center)
             .padding(.top, AppSpacing.md)
     }
@@ -81,7 +82,7 @@ struct AmountRangeCard: View {
             HStack(spacing: AppSpacing.md) {
                 Text(range.rawValue)
                     .font(AppFonts.headline)
-                    .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? .white : AppColors.textPrimary)
                 
                 Spacer()
                 
@@ -99,7 +100,7 @@ struct AmountRangeCard: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
                             .strokeBorder(
-                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(.quaternary),
+                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(AppColors.border),
                                 lineWidth: isSelected ? 0 : 0.5
                             )
                     }

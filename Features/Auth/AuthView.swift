@@ -43,6 +43,7 @@ struct AuthView: View {
                 .background {
                     Rectangle()
                         .fill(.ultraThinMaterial)
+                        .background(AppColors.backgroundPrimary)
                         .ignoresSafeArea(edges: .bottom)
                 }
         }
@@ -73,10 +74,11 @@ struct AuthView: View {
             
             Text(viewModel.authMode == .login ? "Iniciar Sesión" : "Crear Cuenta")
                 .font(AppFonts.title)
+                .foregroundStyle(AppColors.textPrimary)
             
             Text("Bienvenido a FinaLive")
                 .font(AppFonts.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
     
@@ -93,15 +95,15 @@ struct AuthView: View {
     private var dividerSection: some View {
         HStack(spacing: AppSpacing.md) {
             Rectangle()
-                .fill(.quaternary)
+                .fill(AppColors.border)
                 .frame(height: 1)
             
             Text("o")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             Rectangle()
-                .fill(.quaternary)
+                .fill(AppColors.border)
                 .frame(height: 1)
         }
     }
@@ -141,7 +143,7 @@ struct AuthView: View {
             HStack(spacing: AppSpacing.xs) {
                 Text(viewModel.authMode == .login ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?")
                     .font(AppFonts.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 Text(viewModel.authMode == .login ? "Regístrate" : "Inicia Sesión")
                     .font(AppFonts.body)

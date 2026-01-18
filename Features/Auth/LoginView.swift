@@ -34,13 +34,15 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Email")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             TextField("ejemplo@email.com", text: $viewModel.loginEmail)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .email)
                 .padding(AppSpacing.md)
                 .background {
@@ -48,7 +50,7 @@ struct LoginView: View {
                         .fill(.ultraThinMaterial)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
         }
@@ -58,10 +60,12 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Contraseña")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             SecureField("Contraseña", text: $viewModel.loginPassword)
                 .textContentType(.password)
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .password)
                 .padding(AppSpacing.md)
                 .background {
@@ -69,7 +73,7 @@ struct LoginView: View {
                         .fill(.ultraThinMaterial)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
         }

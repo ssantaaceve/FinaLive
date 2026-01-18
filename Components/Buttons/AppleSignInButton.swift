@@ -21,7 +21,7 @@ struct AppleSignInButton: View {
                 Text("Continuar con Apple")
                     .font(AppFonts.headline)
             }
-            .foregroundColor(.primary)
+            .foregroundStyle(AppColors.textPrimary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppSpacing.md)
             .background {
@@ -29,7 +29,7 @@ struct AppleSignInButton: View {
                     .fill(.ultraThinMaterial)
                     .overlay {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
-                            .strokeBorder(.quaternary, lineWidth: 0.5)
+                            .strokeBorder(AppColors.border, lineWidth: 0.5)
                     }
             }
         }

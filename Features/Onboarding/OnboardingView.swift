@@ -44,6 +44,7 @@ struct OnboardingView: View {
                         .background {
                             Rectangle()
                                 .fill(.ultraThinMaterial)
+                                .background(AppColors.backgroundPrimary)
                                 .ignoresSafeArea(edges: .bottom)
                         }
                 }
@@ -65,15 +66,15 @@ struct OnboardingView: View {
                         Text("Atrás")
                             .font(AppFonts.body)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppSpacing.md)
                     .background {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
                             .fill(.ultraThinMaterial)
                             .overlay {
-                                RoundedRectangle(cornerRadius: AppSpacing.md)
-                                    .strokeBorder(.quaternary, lineWidth: 0.5)
+                            RoundedRectangle(cornerRadius: AppSpacing.md)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                             }
                     }
                 }

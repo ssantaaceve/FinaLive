@@ -7,67 +7,67 @@
 
 import SwiftUI
 
-/// Design System con identidad visual fintech premium
-/// Paleta verde suave, moderna y cercana
+/// Design System con identidad visual fintech premium DARK MODE
+/// Estilo oscuro inspirado en Nubank - exclusivo, moderno y minimalista
 enum AppColors {
     // MARK: - Primary Colors (Verde Fintech)
     
     /// Verde principal suave y vibrante - acciones principales
-    static let primary = Color(red: 0.24, green: 0.73, blue: 0.56) // Verde suave #3DBB8F
+    static let primary = Color(red: 0.24, green: 0.73, blue: 0.56) // Verde fintech #3DBB8F
     
     /// Verde más profundo - acciones de acento
     static let accent = Color(red: 0.18, green: 0.64, blue: 0.48) // Verde profundo #2EA37A
     
-    /// Verde suave para estados secundarios
-    static let primarySoft = Color(red: 0.24, green: 0.73, blue: 0.56).opacity(0.15)
+    /// Verde suave para estados secundarios (opacidad para dark UI)
+    static let primarySoft = Color(red: 0.24, green: 0.73, blue: 0.56).opacity(0.2)
     
-    // MARK: - Background Colors
+    // MARK: - Background Colors (Dark Premium)
     
-    /// Fondo principal - verde claro/gris verdoso (NO blanco puro)
-    static let backgroundPrimary = Color(red: 0.97, green: 0.98, blue: 0.96) // Verde claro #F7FAF5
+    /// Fondo principal - NEGRO puro (base del app)
+    static let backgroundPrimary = Color.black // #000000
     
-    /// Fondo secundario - para secciones alternadas
-    static let backgroundSecondary = Color(red: 0.95, green: 0.97, blue: 0.94) // Verde grisáceo #F2F7F0
+    /// Fondo secundario - gris muy oscuro para secciones alternadas
+    static let backgroundSecondary = Color(red: 0.11, green: 0.11, blue: 0.12) // #1C1C1E
     
-    // MARK: - Surface Colors (Cards)
+    // MARK: - Surface Colors (Cards Dark)
     
-    /// Superficie principal - cards blancas suaves con elevación
-    static let surfacePrimary = Color.white
+    /// Superficie principal - cards oscuras con elevación sutil
+    static let surfacePrimary = Color(red: 0.11, green: 0.11, blue: 0.12) // Gris oscuro #1C1C1E
     
-    /// Superficie elevada - para cards destacadas
-    static let surfaceElevated = Color(red: 1.0, green: 1.0, blue: 1.0) // Blanco suave
+    /// Superficie elevada - para cards destacadas (ligeramente más clara)
+    static let surfaceElevated = Color(red: 0.17, green: 0.17, blue: 0.18) // #2C2C2E
     
-    // MARK: - Text Colors
+    // MARK: - Text Colors (White/Gray Hierarchy)
     
-    /// Texto primario - gris muy oscuro para títulos
-    static let textPrimary = Color(red: 0.15, green: 0.15, blue: 0.15) // Gris oscuro #262626
+    /// Texto primario - BLANCO para títulos y contenido principal
+    static let textPrimary = Color.white // #FFFFFF
     
-    /// Texto secundario - gris medio para textos de apoyo
-    static let textSecondary = Color(red: 0.45, green: 0.45, blue: 0.45) // Gris medio #737373
+    /// Texto secundario - gris claro para textos de apoyo
+    static let textSecondary = Color(red: 0.56, green: 0.56, blue: 0.58) // Gris claro #8E8E93
     
     // MARK: - Utility Colors
     
-    /// Bordes sutiles
-    static let border = Color(red: 0.90, green: 0.90, blue: 0.90) // Gris claro #E6E6E6
+    /// Bordes sutiles - gris oscuro muy sutil
+    static let border = Color(red: 0.28, green: 0.28, blue: 0.30) // #48484A
     
-    /// Estados deshabilitados
-    static let disabled = Color(red: 0.75, green: 0.75, blue: 0.75) // Gris medio claro
+    /// Estados deshabilitados - gris medio visible en dark UI
+    static let disabled = Color(red: 0.40, green: 0.40, blue: 0.42) // #666668
     
-    /// Success (mantiene verde, pero coherente con paleta)
-    static let success = Color(red: 0.24, green: 0.73, blue: 0.56)
+    /// Success - verde fintech (coherente con paleta)
+    static let success = Color(red: 0.24, green: 0.73, blue: 0.56) // #3DBB8F
     
-    /// Warning - tono cálido suave
-    static let warning = Color(red: 0.98, green: 0.75, blue: 0.18) // Naranja suave
+    /// Warning - tono cálido suave visible en dark
+    static let warning = Color(red: 1.0, green: 0.75, blue: 0.25) // Naranja claro #FFC040
     
-    /// Error - rojo suave (no agresivo)
-    static let error = Color(red: 0.91, green: 0.30, blue: 0.30) // Rojo suave #E84D4D
+    /// Error - rojo suave pero visible en dark UI
+    static let error = Color(red: 1.0, green: 0.37, blue: 0.37) // Rojo claro #FF5F5F
     
-    // MARK: - Legacy Support (mantener para compatibilidad temporal)
+    // MARK: - Legacy Support (mantener para compatibilidad)
     
     /// @deprecated Usar backgroundPrimary
     static var background: Color { backgroundPrimary }
     
-    /// @deprecated Usar primary
+    /// @deprecated Usar primarySoft
     static var secondary: Color { primarySoft }
 }
 

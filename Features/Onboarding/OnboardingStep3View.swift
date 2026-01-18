@@ -39,6 +39,7 @@ struct OnboardingStep3View: View {
         VStack(spacing: AppSpacing.md) {
             Text("¿Te motivaría más ahorrar si recibes beneficios por cumplir tu meta?")
                 .font(AppFonts.title2)
+                .foregroundStyle(AppColors.textPrimary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -80,7 +81,7 @@ struct IncentiveCard: View {
                 
                 Text(incentive.rawValue)
                     .font(AppFonts.body)
-                    .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? .white : AppColors.textPrimary)
                     .multilineTextAlignment(.leading)
                 
                 Spacer()
@@ -99,7 +100,7 @@ struct IncentiveCard: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: AppSpacing.md)
                             .strokeBorder(
-                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(.quaternary),
+                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(AppColors.border),
                                 lineWidth: isSelected ? 0 : 0.5
                             )
                     }
