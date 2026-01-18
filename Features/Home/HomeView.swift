@@ -50,17 +50,75 @@ struct HomeView: View {
     
     private var balanceCard: some View {
         CardView {
-            VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
-                Text("Balance Total")
-                    .font(AppFonts.headline)
-                    .foregroundStyle(AppColors.textSecondary)
+            VStack(spacing: AppSpacing.md) {
+                // Balance Total
+                VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
+                    Text("Balance Total")
+                        .font(AppFonts.headline)
+                        .foregroundStyle(AppColors.textSecondary)
+                    
+                    Text(viewModel.formattedBalance)
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundStyle(AppColors.textPrimary)
+                }
+                .frame(maxWidth: .infinity)
                 
-                Text(viewModel.formattedBalance)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
+                // Separador sutil
+                Rectangle()
+                    .fill(AppColors.border.opacity(0.3))
+                    .frame(height: 0.5)
+                    .padding(.vertical, AppSpacing.xs)
+                
+                // Ingresos y Gastos
+                incomeExpenseSection
             }
             .frame(maxWidth: .infinity)
         }
+    }
+    
+    private var incomeExpenseSection: some View {
+        HStack(spacing: AppSpacing.md) {
+            incomeModule
+            expenseModule
+        }
+    }
+    
+    private var incomeModule: some View {
+        VStack(spacing: AppSpacing.xs) {
+            HStack(spacing: AppSpacing.xs) {
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppColors.success)
+                
+                Text("Ingresos")
+                    .font(AppFonts.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+            
+            Text(viewModel.formattedIncome)
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.textPrimary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var expenseModule: some View {
+        VStack(spacing: AppSpacing.xs) {
+            HStack(spacing: AppSpacing.xs) {
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppColors.error)
+                
+                Text("Gastos")
+                    .font(AppFonts.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+            
+            Text(viewModel.formattedExpense)
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.textPrimary)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     private var transactionsSection: some View {

@@ -12,6 +12,8 @@ import Foundation
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var balance: Double = 0.0
+    @Published var income: Double = 0.0
+    @Published var expense: Double = 0.0
     @Published var isLoading: Bool = false
     
     init() {
@@ -19,14 +21,30 @@ class HomeViewModel: ObservableObject {
     }
     
     var formattedBalance: String {
+        formatCurrency(balance)
+    }
+    
+    var formattedIncome: String {
+        formatCurrency(income)
+    }
+    
+    var formattedExpense: String {
+        formatCurrency(expense)
+    }
+    
+    private func formatCurrency(_ amount: Double) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
-        return formatter.string(from: NSNumber(value: balance)) ?? "$0.00"
+        return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
     }
     
     func loadData() {
         // TODO: Cargar datos de transacciones desde servicio
+        // Valores mock para desarrollo visual
+        balance = 1250.50
+        income = 2500.00
+        expense = 1249.50
         isLoading = false
     }
     
