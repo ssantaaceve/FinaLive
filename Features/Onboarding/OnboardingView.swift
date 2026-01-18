@@ -46,10 +46,6 @@ struct OnboardingView: View {
                             .padding(.top, AppSpacing.lg)
                             .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
                     }
-                    .background {
-                        AppBackground()
-                            .ignoresSafeArea(edges: .bottom)
-                    }
                 }
             }
         }

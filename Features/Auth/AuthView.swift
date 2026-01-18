@@ -48,10 +48,6 @@ struct AuthView: View {
                     .padding(.top, AppSpacing.lg)
                     .padding(.bottom, AppSpacing.lg)
             }
-            .background {
-                AppBackground()
-                    .ignoresSafeArea(edges: .bottom)
-            }
         }
     }
     
