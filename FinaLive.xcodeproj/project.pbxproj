@@ -54,6 +54,9 @@
 				Auth/SignUpView.swift,
 				Home/HomeView.swift,
 				Home/HomeViewModel.swift,
+				Onboarding/OnboardingStep1View.swift,
+				Onboarding/OnboardingStep2View.swift,
+				Onboarding/OnboardingStep3View.swift,
 				Onboarding/OnboardingView.swift,
 				Onboarding/OnboardingViewModel.swift,
 			);

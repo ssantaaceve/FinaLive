@@ -91,7 +91,8 @@ class AuthViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         
         isLoading = false
-        router?.navigateToHome()
+        // Usuario nuevo va a onboarding después de registrarse
+        router?.navigateToOnboarding()
     }
     
     func signInWithApple() async {

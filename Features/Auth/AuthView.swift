@@ -35,16 +35,19 @@ struct AuthView: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
-        .background(AppColors.background)
+        .background(AppBackground())
         .safeAreaInset(edge: .bottom) {
-            bottomSection
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.bottom, AppSpacing.md)
-                .background {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea(edges: .bottom)
-                }
+            VStack(spacing: 0) {
+                // Separador sutil
+                Rectangle()
+                    .fill(AppColors.border.opacity(0.2))
+                    .frame(height: 0.5)
+                
+                bottomSection
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.top, AppSpacing.lg)
+                    .padding(.bottom, AppSpacing.lg)
+            }
         }
     }
     
@@ -73,10 +76,11 @@ struct AuthView: View {
             
             Text(viewModel.authMode == .login ? "Iniciar Sesión" : "Crear Cuenta")
                 .font(AppFonts.title)
+                .foregroundStyle(AppColors.textPrimary)
             
             Text("Bienvenido a FinaLive")
                 .font(AppFonts.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
     
@@ -93,15 +97,15 @@ struct AuthView: View {
     private var dividerSection: some View {
         HStack(spacing: AppSpacing.md) {
             Rectangle()
-                .fill(.quaternary)
+                .fill(AppColors.border)
                 .frame(height: 1)
             
             Text("o")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             Rectangle()
-                .fill(.quaternary)
+                .fill(AppColors.border)
                 .frame(height: 1)
         }
     }
@@ -131,6 +135,7 @@ struct AuthView: View {
             .opacity(viewModel.isLoading ? 0.6 : 1.0)
             
             toggleAuthModeButton
+                .padding(.bottom, AppSpacing.xs)
         }
     }
     
@@ -141,7 +146,7 @@ struct AuthView: View {
             HStack(spacing: AppSpacing.xs) {
                 Text(viewModel.authMode == .login ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?")
                     .font(AppFonts.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 Text(viewModel.authMode == .login ? "Regístrate" : "Inicia Sesión")
                     .font(AppFonts.body)

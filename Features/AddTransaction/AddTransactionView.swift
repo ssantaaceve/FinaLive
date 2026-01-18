@@ -66,7 +66,7 @@ struct AddTransactionView: View {
         Section {
             HStack {
                 Text("$")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
                 TextField("0.00", text: $viewModel.amount)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .amount)

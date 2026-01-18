@@ -19,7 +19,7 @@ struct PrimaryButton: View {
         Button(action: action) {
             Text(title)
                 .font(AppFonts.headline)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.md)
                 .background {

@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-/// Vista de onboarding inicial de la aplicación
-/// Muestra una introducción simple y permite navegar a la pantalla principal
+/// Vista principal de onboarding con navegación tipo pager
+/// Contiene 3 pasos para configurar objetivos, metas e incentivos
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @ObservedObject var router: AppRouter
@@ -16,29 +16,36 @@ struct OnboardingView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Fondo con gradiente sutil
-                LinearGradient(
-                    colors: [AppColors.background, AppColors.background.opacity(0.8)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+                // Fondo gradiente
+                AppBackground()
                 
                 VStack(spacing: 0) {
-                    Spacer()
+                    // Pager con las 3 pantallas
+                    TabView(selection: $viewModel.currentStep) {
+                        OnboardingStep1View(viewModel: viewModel)
+                            .tag(0)
+                        
+                        OnboardingStep2View(viewModel: viewModel)
+                            .tag(1)
+                        
+                        OnboardingStep3View(viewModel: viewModel)
+                            .tag(2)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.currentStep)
                     
-                    iconSection
-                    
-                    Spacer()
-                        .frame(height: AppSpacing.lg + AppSpacing.md)
-                    
-                    contentSection
-                    
-                    Spacer()
-                    
-                    actionSection
-                        .padding(.horizontal, AppSpacing.lg)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
+                    // Botones de navegación
+                    VStack(spacing: 0) {
+                        // Separador sutil
+                        Rectangle()
+                            .fill(AppColors.border.opacity(0.2))
+                            .frame(height: 0.5)
+                        
+                        navigationSection
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.top, AppSpacing.lg)
+                            .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
+                    }
                 }
             }
         }
@@ -46,32 +53,46 @@ struct OnboardingView: View {
     
     // MARK: - View Components
     
-    private var iconSection: some View {
-        Image(systemName: "dollarsign.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 120, height: 120)
-            .foregroundStyle(AppColors.primary.gradient)
-            .shadow(color: AppColors.primary.opacity(0.3), radius: 20, x: 0, y: 10)
-    }
-    
-    private var contentSection: some View {
-        VStack(spacing: AppSpacing.md) {
-            Text("Bienvenido a FinaLive")
-                .font(AppFonts.title)
+    private var navigationSection: some View {
+        HStack(spacing: AppSpacing.md) {
+            // Botón Atrás
+            if viewModel.currentStep > 0 {
+                Button(action: {
+                    viewModel.previousStep()
+                }) {
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: "chevron.left")
+                        Text("Atrás")
+                            .font(AppFonts.body)
+                    }
+                    .foregroundStyle(AppColors.textPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.md)
+                    .background {
+                        RoundedRectangle(cornerRadius: AppSpacing.md)
+                            .fill(AppColors.surfacePrimary)
+                            .overlay {
+                            RoundedRectangle(cornerRadius: AppSpacing.md)
+                                .strokeBorder(AppColors.border, lineWidth: 1)
+                            }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
             
-            Text("Gestiona tus finanzas de manera simple")
-                .font(AppFonts.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppSpacing.lg)
-        }
-    }
-    
-    private var actionSection: some View {
-        PrimaryButton(title: "Comenzar") {
-            viewModel.completeOnboarding()
-            router.navigateToHome()
+            // Botón Siguiente / Completar
+            PrimaryButton(
+                title: viewModel.currentStep == viewModel.totalSteps - 1 ? "Completar" : "Siguiente"
+            ) {
+                if viewModel.currentStep == viewModel.totalSteps - 1 {
+                    viewModel.completeOnboarding()
+                    router.navigateToHome()
+                } else {
+                    viewModel.nextStep()
+                }
+            }
+            .disabled(!viewModel.canGoToNextStep)
+            .opacity(viewModel.canGoToNextStep ? 1.0 : 0.5)
         }
     }
 }

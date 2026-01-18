@@ -38,21 +38,24 @@ struct SignUpView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Nombre")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             TextField("Nombre completo", text: $viewModel.signUpName)
                 .textContentType(.name)
                 .autocapitalization(.words)
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .name)
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     
@@ -60,23 +63,26 @@ struct SignUpView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Email")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             TextField("ejemplo@email.com", text: $viewModel.signUpEmail)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .email)
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     
@@ -84,21 +90,24 @@ struct SignUpView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Teléfono")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             TextField("+1 234 567 8900", text: $viewModel.signUpPhone)
                 .textContentType(.telephoneNumber)
                 .keyboardType(.phonePad)
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .phone)
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     
@@ -106,20 +115,23 @@ struct SignUpView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Contraseña")
                 .font(AppFonts.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             SecureField("Contraseña", text: $viewModel.signUpPassword)
                 .textContentType(.newPassword)
+                .foregroundStyle(AppColors.textPrimary)
+                .tint(AppColors.primary)
                 .focused($focusedField, equals: .password)
                 .padding(AppSpacing.md)
                 .background {
                     RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(.ultraThinMaterial)
+                        .fill(AppColors.surfacePrimary)
                         .overlay {
                             RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(AppColors.border, lineWidth: 0.5)
                         }
                 }
+                .accentColor(AppColors.primary)
         }
     }
     

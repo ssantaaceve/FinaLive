@@ -24,7 +24,9 @@ struct HomeView: View {
                 }
                 .padding(AppSpacing.md)
             }
+            .background(AppBackground())
             .navigationTitle("FinaLive")
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -51,11 +53,11 @@ struct HomeView: View {
             VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
                 Text("Balance Total")
                     .font(AppFonts.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 Text(viewModel.formattedBalance)
                     .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppColors.textPrimary)
             }
             .frame(maxWidth: .infinity)
         }
@@ -76,15 +78,15 @@ struct HomeView: View {
         VStack(spacing: AppSpacing.sm + AppSpacing.xs) {
             Image(systemName: "list.bullet.rectangle")
                 .font(.system(size: 48))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(AppColors.textSecondary.opacity(0.5))
             
             Text("No hay transacciones aún")
                 .font(AppFonts.headline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
             
             Text("Toca el botón + para agregar tu primera transacción")
                 .font(AppFonts.body)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(AppColors.textSecondary.opacity(0.7))
                 .multilineTextAlignment(.center)
         }
         .padding(.vertical, AppSpacing.lg + AppSpacing.md)
