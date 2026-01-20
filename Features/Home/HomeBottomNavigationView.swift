@@ -115,8 +115,8 @@ struct HomeBottomNavigationView: View {
                     // Detectar dirección principal
                     let verticalMovement = value.translation.height
                     
-                    // Limitar distancia de arrastre
-                    dragOffset = max(-maxDragDistance, min(maxDragDistance, -verticalMovement))
+                    // Limitar distancia de arrastre (seguir directamente el gesto)
+                    dragOffset = max(-maxDragDistance, min(maxDragDistance, verticalMovement))
                     
                     // Actualizar progreso
                     let progress = min(1.0, abs(dragOffset) / maxDragDistance)

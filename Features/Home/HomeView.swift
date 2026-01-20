@@ -12,15 +12,14 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var router: AppRouter
-    @State private var showAddTransaction = false
     @State private var selectedBottomTab: HomeBottomNavigationView.BottomTab = .home
-    @State private var transactionActionType: TransactionAction?
+    @State private var navigationPath = NavigationPath()
     @State private var isDraggingTransaction: Bool = false
     @State private var dragDirection: HomeBottomNavigationView.DragDirection = .none
     @State private var dragProgress: CGFloat = 0
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 // Fondo principal
                 AppBackground()
@@ -58,8 +57,13 @@ struct HomeView: View {
                     HomeBottomNavigationView(
                         selectedTab: $selectedBottomTab,
                         onTransactionAction: { action in
-                            transactionActionType = action
-                            showAddTransaction = true
+                            // Navegar según la acción
+                            switch action {
+                            case .expense:
+                                navigationPath.append(NavigationDestination.addExpense)
+                            case .income:
+                                navigationPath.append(NavigationDestination.addIncome)
+                            }
                         },
                         isDragging: $isDraggingTransaction,
                         dragDirection: $dragDirection,
@@ -75,20 +79,25 @@ struct HomeView: View {
                 }
             }
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .sheet(isPresented: $showAddTransaction) {
-                AddTransactionView(router: router)
-            }
-            .onChange(of: transactionActionType) { oldValue, newValue in
-                if let action = newValue {
-                    print("Transaction Action: \(action)")
-                    // TODO: Pasar el tipo de transacción a AddTransactionView
-                    transactionActionType = nil
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .addExpense:
+                    AddExpenseView()
+                case .addIncome:
+                    AddIncomeView()
                 }
             }
             .refreshable {
                 await viewModel.refreshAsync()
             }
         }
+    }
+    
+    // MARK: - Navigation
+    
+    enum NavigationDestination: Hashable {
+        case addExpense
+        case addIncome
     }
     
     // MARK: - View Components
