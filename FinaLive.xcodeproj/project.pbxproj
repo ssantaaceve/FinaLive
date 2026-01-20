@@ -52,6 +52,7 @@
 				Auth/AuthViewModel.swift,
 				Auth/LoginView.swift,
 				Auth/SignUpView.swift,
+				Home/BalanceCardView.swift,
 				Home/HomeHeaderView.swift,
 				Home/HomeView.swift,
 				Home/HomeViewModel.swift,

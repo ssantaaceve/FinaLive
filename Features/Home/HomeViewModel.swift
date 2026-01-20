@@ -14,6 +14,7 @@ class HomeViewModel: ObservableObject {
     @Published var balance: Double = 0.0
     @Published var income: Double = 0.0
     @Published var expense: Double = 0.0
+    @Published var percentageChange: String = ""
     @Published var isLoading: Bool = false
     @Published var userName: String = "Sergio"
     @Published var hasNotifications: Bool = false
@@ -44,9 +45,10 @@ class HomeViewModel: ObservableObject {
     func loadData() {
         // TODO: Cargar datos de transacciones desde servicio
         // Valores mock para desarrollo visual
-        balance = 1250.50
+        balance = 15420.50
         income = 2500.00
         expense = 1249.50
+        percentageChange = "+2.5% vs mes anterior"
         isLoading = false
     }
     
