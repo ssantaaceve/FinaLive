@@ -57,7 +57,7 @@ struct HomeBottomNavigationView: View {
             // Pill ovalado flotante con efecto glass
             Capsule()
                 .fill(.ultraThinMaterial)
-                .opacity(0.3)
+                .opacity(0.8)
                 .background(
                     Capsule()
                         .fill(Color.clear)

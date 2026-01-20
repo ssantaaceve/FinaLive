@@ -26,7 +26,7 @@ struct HomeHeaderView: View {
             notificationsButton
         }
         .padding(.horizontal, AppSpacing.md)
-        .padding(.vertical, AppSpacing.sm)
+        .padding(.vertical, AppSpacing.xs)
     }
     
     // MARK: - View Components

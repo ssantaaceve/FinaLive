@@ -88,11 +88,7 @@ struct BalanceCardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                // Separador sutil (compacto)
-                Rectangle()
-                    .fill(AppColors.border.opacity(0.3))
-                    .frame(height: 0.5)
-                    .padding(.vertical, AppSpacing.xs)
+                
                 
                 // Ingresos y Gastos (mini cards)
                 incomeExpenseSection
