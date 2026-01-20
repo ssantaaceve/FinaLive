@@ -19,32 +19,40 @@ struct BalanceCardView: View {
     let formattedExpense: String
     
     @State private var showBalance: Bool = true
+    @State private var selectedPeriod: Period = .month
+    
+    enum Period: String, CaseIterable {
+        case today = "Hoy"
+        case week = "Semana"
+        case month = "Mes"
+        case year = "Año"
+    }
     
     var body: some View {
         ZStack {
-            // Gradiente decorativo sutil
+            // Gradiente decorativo sutil (reducido)
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [
-                            AppColors.primary.opacity(0.3),
+                            AppColors.primary.opacity(0.15),
                             AppColors.primary.opacity(0.0)
                         ],
                         center: .topTrailing,
                         startRadius: 0,
-                        endRadius: 160
+                        endRadius: 120
                     )
                 )
-                .frame(width: 160, height: 160)
-                .offset(x: 80, y: -80)
-                .blur(radius: 40)
+                .frame(width: 120, height: 120)
+                .offset(x: 60, y: -60)
+                .blur(radius: 30)
             
-            VStack(spacing: AppSpacing.md) {
+            VStack(spacing: AppSpacing.sm) {
                 // Header con label y toggle
                 HStack {
                     Text("Balance Total")
                         .font(AppFonts.headline)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .foregroundStyle(AppColors.textPrimary)
                     
                     Spacer()
                     
@@ -54,70 +62,86 @@ struct BalanceCardView: View {
                         }
                     }) {
                         Image(systemName: showBalance ? "eye.fill" : "eye.slash.fill")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(AppColors.textSecondary)
-                            .padding(AppSpacing.xs)
-                            .background {
-                                RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                    .fill(AppColors.surfacePrimary.opacity(0.5))
-                            }
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(AppColors.textSecondary.opacity(0.8))
+                            .frame(width: 32, height: 32)
                     }
                     .buttonStyle(.plain)
                 }
                 
-                // Balance (principal)
+                // Selector de período (discreto)
+                periodSelector
+                
+                // Balance (principal - reducido)
                 Text(showBalance ? formattedBalance : "••••••")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
                     .foregroundStyle(AppColors.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentTransition(.opacity)
                 
-                // Variación porcentual
+                // Variación porcentual (aumentado)
                 if showBalance {
                     Text(percentageChange)
-                        .font(AppFonts.caption)
+                        .font(AppFonts.body)
                         .fontWeight(.medium)
                         .foregroundStyle(AppColors.success)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                // Separador sutil
+                // Separador sutil (compacto)
                 Rectangle()
                     .fill(AppColors.border.opacity(0.3))
                     .frame(height: 0.5)
                     .padding(.vertical, AppSpacing.xs)
                 
-                // Ingresos y Gastos
+                // Ingresos y Gastos (mini cards)
                 incomeExpenseSection
             }
-            .padding(AppSpacing.md)
-        }
-        .background {
-            RoundedRectangle(cornerRadius: AppSpacing.lg)
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: AppSpacing.lg)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.border.opacity(0.2),
-                                    AppColors.border.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                }
-                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 8)
+            .padding(AppSpacing.sm)
         }
     }
-    
     // MARK: - View Components
     
+    private var periodSelector: some View {
+        HStack(spacing: AppSpacing.xs) {
+            ForEach(Period.allCases, id: \.self) { period in
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        selectedPeriod = period
+                    }
+                }) {
+                    Text(period.rawValue)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(
+                            selectedPeriod == period
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary
+                        )
+                        .padding(.horizontal, AppSpacing.sm)
+                        .padding(.vertical, AppSpacing.xs)
+                        .background {
+                            if selectedPeriod == period {
+                                Capsule()
+                                    .fill(AppColors.primary.opacity(0.2))
+                                    .overlay {
+                                        Capsule()
+                                            .strokeBorder(AppColors.primary.opacity(0.4), lineWidth: 0.5)
+                                    }
+                            } else {
+                                Capsule()
+                                    .fill(Color.clear)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.vertical, AppSpacing.xs)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
     private var incomeExpenseSection: some View {
-        HStack(spacing: AppSpacing.md) {
+        HStack(spacing: AppSpacing.sm) {
             incomeModule
             expenseModule
         }
@@ -125,42 +149,68 @@ struct BalanceCardView: View {
     
     private var incomeModule: some View {
         VStack(spacing: AppSpacing.xs) {
-            HStack(spacing: AppSpacing.xs) {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AppColors.success)
-                
-                Text("Ingresos")
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-            }
+            // Título (con más aire respecto a los bordes)
+            Text("Ingresos")
+                .font(AppFonts.caption)
+                .foregroundStyle(AppColors.textSecondary)
             
-            Text(showBalance ? formattedIncome : "••••")
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .foregroundStyle(AppColors.textPrimary)
-                .contentTransition(.opacity)
+            // Bloque compacto: ícono + monto (centrado visualmente)
+            HStack(spacing: AppSpacing.xs) {
+                // Ícono dentro de círculo translúcido
+                ZStack {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(AppColors.success)
+                }
+                
+                // Monto (formando bloque con ícono)
+                Text(showBalance ? formattedIncome : "••••")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .contentTransition(.opacity)
+            }
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, AppSpacing.sm)
+        .padding(.horizontal, AppSpacing.sm)
+        .frame(minHeight: 60)
+        .overlay {
+            RoundedRectangle(cornerRadius: AppSpacing.md)
+                .strokeBorder(AppColors.success.opacity(0.9), lineWidth: 1)
+        }
     }
     
     private var expenseModule: some View {
         VStack(spacing: AppSpacing.xs) {
-            HStack(spacing: AppSpacing.xs) {
-                Image(systemName: "arrow.down")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AppColors.error)
-                
-                Text("Gastos")
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-            }
+            // Título (con más aire respecto a los bordes)
+            Text("Gastos")
+                .font(AppFonts.caption)
+                .foregroundStyle(AppColors.textSecondary)
             
-            Text(showBalance ? formattedExpense : "••••")
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .foregroundStyle(AppColors.textPrimary)
-                .contentTransition(.opacity)
+            // Bloque compacto: ícono + monto (centrado visualmente)
+            HStack(spacing: AppSpacing.xs) {
+                // Ícono dentro de círculo translúcido
+                ZStack {
+                    Image(systemName: "arrow.down")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(AppColors.error)
+                }
+                
+                // Monto (formando bloque con ícono)
+                Text(showBalance ? formattedExpense : "••••")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .contentTransition(.opacity)
+            }
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, AppSpacing.sm)
+        .padding(.horizontal, AppSpacing.sm)
+        .frame(minHeight: 60)
+        .overlay {
+            RoundedRectangle(cornerRadius: AppSpacing.md)
+                .strokeBorder(AppColors.error.opacity(0.9), lineWidth: 1)
+        }
     }
 }
 
