@@ -35,26 +35,7 @@ struct RecentTransactionsView: View {
                     transactionsList
                 }
                 .padding(AppSpacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.lg)
-                        .fill(.ultraThinMaterial)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: AppSpacing.lg)
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: [
-                                            AppColors.border.opacity(0.2),
-                                            AppColors.border.opacity(0.1)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 0.5
-                                )
-                        }
-                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                        .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 8)
-                }
+        
             } else {
                 EmptyView()
             }
