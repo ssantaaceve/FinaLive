@@ -16,6 +16,7 @@ struct AddIncomeView: View {
     @State private var amount: String = ""
     @State private var description: String = ""
     @State private var selectedDate: Date = Date()
+    @State private var showDatePicker: Bool = false
     
     @FocusState private var focusedField: Field?
     
@@ -58,7 +59,6 @@ struct AddIncomeView: View {
                 .padding(AppSpacing.md)
             }
         }
-        .navigationTitle("Registrar Ingreso")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -69,6 +69,9 @@ struct AddIncomeView: View {
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .sheet(isPresented: $showDatePicker) {
+            datePickerSheet
+        }
     }
     
     // MARK: - Computed Properties
@@ -101,13 +104,12 @@ struct AddIncomeView: View {
             
             Picker("Categoría", selection: $category) {
                 Text("Selecciona una categoría").tag("")
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                 ForEach(incomeCategories, id: \.self) { cat in
                     Text(cat).tag(cat)
                 }
             }
             .pickerStyle(.menu)
-            .foregroundStyle(AppColors.textPrimary)
+            .foregroundStyle(category.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
             .tint(AppColors.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppSpacing.md)
@@ -128,14 +130,23 @@ struct AddIncomeView: View {
             HStack(spacing: AppSpacing.xs) {
                 Text("$")
                     .font(AppFonts.headline)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                 
-                TextField("0.00", text: $amount)
-                    .font(AppFonts.headline)
-                    .keyboardType(.decimalPad)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .tint(AppColors.textPrimary)
-                    .focused($focusedField, equals: .amount)
+                ZStack(alignment: .leading) {
+                    // Placeholder visible cuando está vacío
+                    if amount.isEmpty {
+                        Text("0.00")
+                            .font(AppFonts.headline)
+                            .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                    }
+                    
+                    TextField("", text: $amount)
+                        .font(AppFonts.headline)
+                        .keyboardType(.decimalPad)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .tint(AppColors.textPrimary)
+                        .focused($focusedField, equals: .amount)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppSpacing.md)
@@ -152,20 +163,66 @@ struct AddIncomeView: View {
             Text("Fecha")
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
-            
-            DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, AppSpacing.md)
-                .padding(.horizontal, AppSpacing.sm)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
-                }
+
+            HStack {
+                Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
+                    .font(AppFonts.body)
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                
+                Spacer()
+                
+                Image(systemName: "calendar")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, AppSpacing.md)
+            .padding(.horizontal, AppSpacing.sm)
+            .background {
+                RoundedRectangle(cornerRadius: AppSpacing.sm)
+                    .strokeBorder(
+                        AppColors.textPrimary.opacity(0.3),
+                        lineWidth: 0.5
+                    )
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showDatePicker = true
+            }
         }
     }
+    
+    private var datePickerSheet: some View {
+        NavigationStack {
+            VStack(spacing: AppSpacing.lg) {
+                DatePicker(
+                    "",
+                    selection: $selectedDate,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.graphical)
+                .labelsHidden()
+                .tint(AppColors.primary)
+                .colorScheme(.dark)
+            }
+            .padding(AppSpacing.md)
+            .background(AppBackground())
+            .navigationTitle("Seleccionar Fecha")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Listo") {
+                        showDatePicker = false
+                    }
+                    .foregroundStyle(AppColors.primary)
+                }
+            }
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+    
     
     private var descriptionField: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
@@ -173,19 +230,30 @@ struct AddIncomeView: View {
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
             
-            TextField("Descripción del ingreso", text: $description, axis: .vertical)
-                .font(AppFonts.body)
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.textPrimary)
-                .focused($focusedField, equals: .description)
-                .lineLimit(3...6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, AppSpacing.md)
-                .padding(.horizontal, AppSpacing.sm)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
+            ZStack(alignment: .topLeading) {
+                // Placeholder visible cuando está vacío
+                if description.isEmpty {
+                    Text("Descripción del ingreso")
+                        .font(AppFonts.body)
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                        .padding(.vertical, AppSpacing.md)
+                        .padding(.horizontal, AppSpacing.sm)
                 }
+                
+                TextField("", text: $description, axis: .vertical)
+                    .font(AppFonts.body)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .tint(AppColors.textPrimary)
+                    .focused($focusedField, equals: .description)
+                    .lineLimit(3...6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, AppSpacing.md)
+                    .padding(.horizontal, AppSpacing.sm)
+            }
+            .background {
+                RoundedRectangle(cornerRadius: AppSpacing.sm)
+                    .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
+            }
         }
     }
     
