@@ -14,8 +14,10 @@ struct AddExpenseView: View {
     
     @State private var category: String = ""
     @State private var amount: String = ""
+    @State private var rawAmount: String = "" // Almacena solo números
     @State private var description: String = ""
     @State private var selectedDate: Date = Date()
+    @State private var showDatePicker: Bool = false
     
     @FocusState private var focusedField: Field?
     
@@ -58,7 +60,6 @@ struct AddExpenseView: View {
                 .padding(AppSpacing.md)
             }
         }
-        .navigationTitle("Registrar Gasto")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -69,16 +70,61 @@ struct AddExpenseView: View {
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .sheet(isPresented: $showDatePicker) {
+            datePickerSheet
+        }
     }
     
     // MARK: - Computed Properties
     
     private var isFormValid: Bool {
         !category.isEmpty &&
-        !amount.isEmpty &&
-        Double(amount) != nil &&
-        Double(amount)! > 0 &&
+        !rawAmount.isEmpty &&
+        getNumericValue(from: rawAmount) > 0 &&
         !description.isEmpty
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Convierte el rawAmount (solo números) a valor numérico en formato colombiano
+    private func getNumericValue(from rawValue: String) -> Double {
+        guard !rawValue.isEmpty else { return 0 }
+        // Los últimos 2 dígitos son decimales
+        let totalValue = Double(rawValue) ?? 0
+        return totalValue / 100.0
+    }
+    
+    /// Formatea el número en formato colombiano (1.000.000,50)
+    /// Los últimos 2 dígitos siempre se tratan como decimales
+    private func formatColombianCurrency(_ numbersOnly: String) -> String {
+        guard !numbersOnly.isEmpty else { return "" }
+        
+        // Si solo hay 1 dígito, mostrar como "0,0X"
+        if numbersOnly.count == 1 {
+            return "0,0\(numbersOnly)"
+        }
+        
+        // Si hay 2 dígitos, mostrar como "0,XX"
+        if numbersOnly.count == 2 {
+            return "0,\(numbersOnly)"
+        }
+        
+        // Separar parte entera y decimales (últimos 2 dígitos)
+        let decimalPart = String(numbersOnly.suffix(2))
+        let integerPart = String(numbersOnly.dropLast(2))
+        
+        // Formatear parte entera con puntos como separadores de miles
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = "."
+        formatter.usesGroupingSeparator = true
+        formatter.maximumFractionDigits = 0
+        
+        let integerValue = Int(integerPart) ?? 0
+        let formattedInteger = formatter.string(from: NSNumber(value: integerValue)) ?? integerPart
+        
+        // Combinar: parte entera + coma + decimales
+        return "\(formattedInteger),\(decimalPart)"
     }
     
     // MARK: - View Components
@@ -86,7 +132,7 @@ struct AddExpenseView: View {
     private var headerSection: some View {
         VStack(spacing: AppSpacing.xs) {
             Text("Nuevo Gasto")
-                .font(AppFonts.title2)
+                .font(AppFonts.title)
                 .foregroundStyle(AppColors.textPrimary)
         }
         .padding(.vertical, AppSpacing.lg)
@@ -101,13 +147,12 @@ struct AddExpenseView: View {
             
             Picker("Categoría", selection: $category) {
                 Text("Selecciona una categoría").tag("")
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                 ForEach(expenseCategories, id: \.self) { cat in
                     Text(cat).tag(cat)
                 }
             }
             .pickerStyle(.menu)
-            .foregroundStyle(AppColors.textPrimary)
+            .foregroundStyle(category.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
             .tint(AppColors.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppSpacing.md)
@@ -128,14 +173,59 @@ struct AddExpenseView: View {
             HStack(spacing: AppSpacing.xs) {
                 Text("$")
                     .font(AppFonts.headline)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                    .foregroundStyle(rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
                 
-                TextField("0.00", text: $amount)
+                ZStack(alignment: .leading) {
+                    // Placeholder visible cuando está vacío
+                    if rawAmount.isEmpty {
+                        Text("0,00")
+                            .font(AppFonts.headline)
+                            .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                    }
+                    
+                    // Texto formateado visible (se actualiza en tiempo real)
+                    if !rawAmount.isEmpty {
+                        Text(amount)
+                            .font(AppFonts.headline)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .allowsHitTesting(false) // Permitir que los toques pasen al TextField
+                    }
+                    
+                    // TextField invisible que solo captura números
+                    TextField("", text: Binding(
+                        get: { rawAmount },
+                        set: { newValue in
+                            // Filtrar solo números inmediatamente
+                            let numbersOnly = newValue.filter { $0.isNumber }
+                            
+                            // Actualizar rawAmount
+                            rawAmount = numbersOnly
+                            
+                            // Formatear inmediatamente en tiempo real
+                            if numbersOnly.isEmpty {
+                                amount = ""
+                            } else {
+                                amount = formatColombianCurrency(numbersOnly)
+                            }
+                        }
+                    ))
                     .font(AppFonts.headline)
-                    .keyboardType(.decimalPad)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .tint(AppColors.textPrimary)
+                    .keyboardType(.numberPad)
+                    .foregroundColor(.clear) // Texto invisible
+                    .accentColor(AppColors.textPrimary) // Cursor visible
                     .focused($focusedField, equals: .amount)
+                    .onChange(of: rawAmount) { oldValue, newValue in
+                        // Asegurar que el formateo se actualice cuando cambia rawAmount
+                        if !newValue.isEmpty {
+                            let formatted = formatColombianCurrency(newValue)
+                            if amount != formatted {
+                                amount = formatted
+                            }
+                        } else if !amount.isEmpty {
+                            amount = ""
+                        }
+                    }
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppSpacing.md)
@@ -152,19 +242,63 @@ struct AddExpenseView: View {
             Text("Fecha")
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
-            
-            DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, AppSpacing.md)
-                .padding(.horizontal, AppSpacing.sm)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
-                }
+
+            HStack {
+                Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
+                    .font(AppFonts.body)
+                    .foregroundStyle(AppColors.textPrimary)
+                
+                Spacer()
+                
+                Image(systemName: "calendar")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, AppSpacing.md)
+            .padding(.horizontal, AppSpacing.sm)
+            .background {
+                RoundedRectangle(cornerRadius: AppSpacing.sm)
+                    .strokeBorder(
+                        AppColors.textPrimary.opacity(0.3),
+                        lineWidth: 0.5
+                    )
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showDatePicker = true
+            }
         }
+    }
+    
+    private var datePickerSheet: some View {
+        NavigationStack {
+            VStack(spacing: AppSpacing.lg) {
+                DatePicker(
+                    "",
+                    selection: $selectedDate,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.graphical)
+                .labelsHidden()
+                .tint(AppColors.primary)
+                .colorScheme(.dark)
+            }
+            .padding(AppSpacing.md)
+            .background(AppBackground())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Listo") {
+                        showDatePicker = false
+                    }
+                    .foregroundStyle(AppColors.primary)
+                }
+            }
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     private var descriptionField: some View {
@@ -173,19 +307,30 @@ struct AddExpenseView: View {
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
             
-            TextField("Descripción del gasto", text: $description, axis: .vertical)
-                .font(AppFonts.body)
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.textPrimary)
-                .focused($focusedField, equals: .description)
-                .lineLimit(3...6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, AppSpacing.md)
-                .padding(.horizontal, AppSpacing.sm)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
+            ZStack(alignment: .topLeading) {
+                // Placeholder visible cuando está vacío
+                if description.isEmpty {
+                    Text("Descripción del gasto")
+                        .font(AppFonts.body)
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                        .padding(.vertical, AppSpacing.md)
+                        .padding(.horizontal, AppSpacing.sm)
                 }
+                
+                TextField("", text: $description, axis: .vertical)
+                    .font(AppFonts.body)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .tint(AppColors.textPrimary)
+                    .focused($focusedField, equals: .description)
+                    .lineLimit(3...6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, AppSpacing.md)
+                    .padding(.horizontal, AppSpacing.sm)
+            }
+            .background {
+                RoundedRectangle(cornerRadius: AppSpacing.sm)
+                    .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
+            }
         }
     }
     

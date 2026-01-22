@@ -14,6 +14,7 @@ struct AddIncomeView: View {
     
     @State private var category: String = ""
     @State private var amount: String = ""
+    @State private var rawAmount: String = "" // Almacena solo números
     @State private var description: String = ""
     @State private var selectedDate: Date = Date()
     @State private var showDatePicker: Bool = false
@@ -78,11 +79,54 @@ struct AddIncomeView: View {
     
     private var isFormValid: Bool {
         !category.isEmpty &&
-        !amount.isEmpty &&
-        Double(amount) != nil &&
-        Double(amount)! > 0 &&
+        !rawAmount.isEmpty &&
+        getNumericValue(from: rawAmount) > 0 &&
         !description.isEmpty
     }
+    
+    // MARK: - Helper Methods
+    
+    /// Convierte el rawAmount (solo números) a valor numérico en formato colombiano
+    private func getNumericValue(from rawValue: String) -> Double {
+        guard !rawValue.isEmpty else { return 0 }
+        // Los últimos 2 dígitos son decimales
+        let totalValue = Double(rawValue) ?? 0
+        return totalValue / 100.0
+    }
+    
+    /// Formatea el número en formato colombiano (1.000.000,50)
+    /// Los últimos 2 dígitos siempre se tratan como decimales
+    private func formatColombianCurrency(_ numbersOnly: String) -> String {
+        guard !numbersOnly.isEmpty else { return "" }
+        
+        // Si solo hay 1 dígito, mostrar como "0,0X"
+        if numbersOnly.count == 1 {
+            return "0,0\(numbersOnly)"
+        }
+        
+        // Si hay 2 dígitos, mostrar como "0,XX"
+        if numbersOnly.count == 2 {
+            return "0,\(numbersOnly)"
+        }
+        
+        // Separar parte entera y decimales (últimos 2 dígitos)
+        let decimalPart = String(numbersOnly.suffix(2))
+        let integerPart = String(numbersOnly.dropLast(2))
+        
+        // Formatear parte entera con puntos como separadores de miles
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = "."
+        formatter.usesGroupingSeparator = true
+        formatter.maximumFractionDigits = 0
+        
+        let integerValue = Int(integerPart) ?? 0
+        let formattedInteger = formatter.string(from: NSNumber(value: integerValue)) ?? integerPart
+        
+        // Combinar: parte entera + coma + decimales
+        return "\(formattedInteger),\(decimalPart)"
+    }
+    
     
     // MARK: - View Components
     
@@ -130,22 +174,58 @@ struct AddIncomeView: View {
             HStack(spacing: AppSpacing.xs) {
                 Text("$")
                     .font(AppFonts.headline)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                    .foregroundStyle(rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
                 
                 ZStack(alignment: .leading) {
                     // Placeholder visible cuando está vacío
-                    if amount.isEmpty {
-                        Text("0.00")
+                    if rawAmount.isEmpty {
+                        Text("0,00")
                             .font(AppFonts.headline)
                             .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                     }
                     
-                    TextField("", text: $amount)
-                        .font(AppFonts.headline)
-                        .keyboardType(.decimalPad)
-                        .foregroundStyle(AppColors.textPrimary)
-                        .tint(AppColors.textPrimary)
-                        .focused($focusedField, equals: .amount)
+                    // Texto formateado visible (se actualiza en tiempo real)
+                    if !rawAmount.isEmpty {
+                        Text(amount)
+                            .font(AppFonts.headline)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .allowsHitTesting(false) // Permitir que los toques pasen al TextField
+                    }
+                    
+                    // TextField invisible que solo captura números
+                    TextField("", text: Binding(
+                        get: { rawAmount },
+                        set: { newValue in
+                            // Filtrar solo números inmediatamente
+                            let numbersOnly = newValue.filter { $0.isNumber }
+                            
+                            // Actualizar rawAmount
+                            rawAmount = numbersOnly
+                            
+                            // Formatear inmediatamente en tiempo real
+                            if numbersOnly.isEmpty {
+                                amount = ""
+                            } else {
+                                amount = formatColombianCurrency(numbersOnly)
+                            }
+                        }
+                    ))
+                    .font(AppFonts.headline)
+                    .keyboardType(.numberPad)
+                    .foregroundColor(.clear) // Texto invisible
+                    .accentColor(AppColors.textPrimary) // Cursor visible
+                    .focused($focusedField, equals: .amount)
+                    .onChange(of: rawAmount) { oldValue, newValue in
+                        // Asegurar que el formateo se actualice cuando cambia rawAmount
+                        if !newValue.isEmpty {
+                            let formatted = formatColombianCurrency(newValue)
+                            if amount != formatted {
+                                amount = formatted
+                            }
+                        } else if !amount.isEmpty {
+                            amount = ""
+                        }
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -167,7 +247,7 @@ struct AddIncomeView: View {
             HStack {
                 Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
                     .font(AppFonts.body)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                    .foregroundStyle(AppColors.textPrimary)
                 
                 Spacer()
                 
@@ -207,7 +287,6 @@ struct AddIncomeView: View {
             }
             .padding(AppSpacing.md)
             .background(AppBackground())
-            .navigationTitle("Seleccionar Fecha")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
