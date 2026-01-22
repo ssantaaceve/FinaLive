@@ -61,6 +61,8 @@
 				Home/RecentTransactionsView.swift,
 				Home/TransactionAction.swift,
 				Home/TransactionRowView.swift,
+				IncomesExpenses/AddExpenseView.swift,
+				IncomesExpenses/AddIncomeView.swift,
 				Onboarding/OnboardingStep1View.swift,
 				Onboarding/OnboardingStep2View.swift,
 				Onboarding/OnboardingStep3View.swift,
