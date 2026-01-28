@@ -2,116 +2,68 @@
 //  OnboardingStep3View.swift
 //  FinaLive
 //
-//  Created by Sergio Andres  Santa Acevedo on 13/1/2026.
+//  Created by Sergio Andres  Santa Acevedo on 9/1/2026.
 //
 
 import SwiftUI
 
-/// Pantalla 3: Selección de incentivos
 struct OnboardingStep3View: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: geometry.size.height * 0.15)
-                    
-                    VStack(spacing: AppSpacing.xl) {
-                        headerSection
-                        
-                        incentivesList
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
-                    
-                    Spacer()
-                        .frame(height: geometry.size.height * 0.15)
-                }
-                .frame(minHeight: geometry.size.height)
-            }
-        }
-    }
-    
-    // MARK: - View Components
-    
-    private var headerSection: some View {
-        VStack(spacing: AppSpacing.md) {
-            Text("¿Te motivaría más ahorrar si recibes beneficios por cumplir tu meta?")
-                .font(AppFonts.title2)
-                .foregroundStyle(AppColors.textPrimary)
-                .multilineTextAlignment(.center)
-        }
-    }
-    
-    private var incentivesList: some View {
-        VStack(spacing: AppSpacing.md) {
-            ForEach(OnboardingViewModel.Incentive.allCases, id: \.self) { incentive in
-                IncentiveCard(
-                    incentive: incentive,
-                    isSelected: viewModel.selectedIncentive == incentive
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        if viewModel.selectedIncentive == incentive {
-                            viewModel.selectedIncentive = nil
-                        } else {
-                            viewModel.selectedIncentive = incentive
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Incentive Card Component
-
-struct IncentiveCard: View {
-    let incentive: OnboardingViewModel.Incentive
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: AppSpacing.md) {
-                Image(systemName: incentive.icon)
-                    .font(.title3)
-                    .foregroundStyle(isSelected ? .white : AppColors.primary)
-                    .frame(width: 24)
+        VStack(spacing: AppSpacing.xl) {
+            // Illustration Placeholder (Glass Effect)
+            ZStack {
+                Circle()
+                    .fill(AppColors.warning.opacity(0.2))
+                    .frame(width: 260, height: 260)
+                    .blur(radius: 50)
                 
-                Text(incentive.rawValue)
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 100))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [AppColors.warning, .orange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: AppColors.warning.opacity(0.5), radius: 20)
+                    .offset(y: -10)
+                
+                ForEach(0..<3) { i in
+                    Image(systemName: "star.fill")
+                        .font(.title)
+                        .foregroundStyle(Color.yellow)
+                        .offset(
+                            x: CGFloat(i * 60 - 60),
+                            y: CGFloat(-120 + abs(i - 1) * -30)
+                        )
+                        .shadow(color: Color.yellow.opacity(0.6), radius: 5)
+                }
+            }
+            .frame(height: 350)
+            
+            // Content
+            VStack(spacing: AppSpacing.md) {
+                Text("Gana Premios")
+                    .font(AppFonts.title.bold())
+                    .foregroundStyle(AppColors.textPrimary)
+                
+                Text("Cumple tus metas de registro y obtén beneficios exclusivos, descuentos y regalos.")
                     .font(AppFonts.body)
-                    .foregroundStyle(isSelected ? .white : AppColors.textPrimary)
-                    .multilineTextAlignment(.leading)
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.white)
-                        .font(.title3)
-                }
+                    .foregroundStyle(AppColors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, AppSpacing.lg)
             }
-            .padding(AppSpacing.md)
-            .frame(maxWidth: .infinity)
-            .background {
-                RoundedRectangle(cornerRadius: AppSpacing.md)
-                    .fill(isSelected ? AnyShapeStyle(AppColors.primary.gradient) : AnyShapeStyle(.ultraThinMaterial))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: AppSpacing.md)
-                            .strokeBorder(
-                                isSelected ? AnyShapeStyle(.clear) : AnyShapeStyle(AppColors.border),
-                                lineWidth: isSelected ? 0 : 0.5
-                            )
-                    }
-            }
-            .scaleEffect(isSelected ? 1.02 : 1.0)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, AppSpacing.lg)
     }
 }
 
 #Preview {
-    OnboardingStep3View(viewModel: OnboardingViewModel())
-        .padding()
+    ZStack {
+        AppColors.backgroundPrimary.ignoresSafeArea()
+        OnboardingStep3View(viewModel: OnboardingViewModel())
+    }
 }

@@ -68,6 +68,7 @@
 				Onboarding/OnboardingStep3View.swift,
 				Onboarding/OnboardingView.swift,
 				Onboarding/OnboardingViewModel.swift,
+				Onboarding/OnboardingInterestsView.swift,
 			);
 			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
 		};
