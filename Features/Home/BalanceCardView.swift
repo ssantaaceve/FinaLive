@@ -2,7 +2,7 @@
 //  BalanceCardView.swift
 //  FinaLive
 //
-//  Created by Sergio Andres  Santa Acevedo on 13/1/2026.
+//  Created by Sergio Andres Santa Acevedo on 13/1/2026.
 //
 
 import SwiftUI
@@ -30,7 +30,7 @@ struct BalanceCardView: View {
     
     var body: some View {
         ZStack {
-            // Gradiente decorativo sutil (reducido)
+            // Gradiente decorativo sutil (Mantenido igual)
             Circle()
                 .fill(
                     RadialGradient(
@@ -47,59 +47,101 @@ struct BalanceCardView: View {
                 .offset(x: 60, y: -60)
                 .blur(radius: 30)
             
-            VStack(spacing: AppSpacing.sm) {
-                // Header con label y toggle
-                HStack {
-                    Text("Balance Total")
-                        .font(AppFonts.headline)
-                        .foregroundStyle(AppColors.textPrimary)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showBalance.toggle()
+            VStack(alignment: .leading, spacing: 20) {
+                
+                // BLOQUE 1: Header, Selector y Balance (Todo junto y compacto)
+                VStack(alignment: .leading, spacing: 6) {
+                    // Fila 1: Título y Ojo
+                    HStack {
+                        Text("Balance Total")
+                            .font(AppFonts.headline)
+                            .foregroundStyle(AppColors.textPrimary)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showBalance.toggle()
+                            }
+                        }) {
+                            Image(systemName: showBalance ? "eye.fill" : "eye.slash.fill")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(AppColors.textSecondary.opacity(0.8))
+                                .frame(width: 32, height: 32)
                         }
-                    }) {
-                        Image(systemName: showBalance ? "eye.fill" : "eye.slash.fill")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(AppColors.textSecondary.opacity(0.8))
-                            .frame(width: 32, height: 32)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                    
+                    // Fila 2: Selector de Periodo (Pegado al título)
+                    periodSelector
+                        .padding(.top, 2)
+                    
+                    // Fila 3: Balance Grande (Pegado al selector)
+                    Text(showBalance ? formattedBalance : "••••••••")
+                        .font(.system(size: 38, weight: .bold, design: .rounded))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .contentTransition(.opacity)
+                        .padding(.top, 4) // Ligera separación visual para el número
+                    
+                    // Fila 4: Porcentaje (Pequeño y alineado)
+                    if showBalance {
+                        Text(percentageChange)
+                            .font(.caption) // Más pequeño como pediste
+                            .fontWeight(.medium)
+                            .foregroundStyle(AppColors.success)
+                    }
                 }
+                .padding(.horizontal, 4)
                 
-                // Selector de período (discreto)
-                periodSelector
+                // BLOQUE 2: Cápsulas de Ingresos y Gastos (SIN ICONOS)
+                incomeExpenseCapsules
                 
-                // Balance (principal - reducido)
-                Text(showBalance ? formattedBalance : "••••••")
-                    .font(.system(size: 38, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentTransition(.opacity)
-                
-                // Variación porcentual (aumentado)
+                // BLOQUE 3: Burbujas de Categorías
                 if showBalance {
-                    Text(percentageChange)
-                        .font(AppFonts.body)
-                        .fontWeight(.medium)
-                        .foregroundStyle(AppColors.success)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            categoryBubble(icon: "cart.fill", name: "Super", amount: expense * 0.4, color: .orange)
+                            categoryBubble(icon: "car.fill", name: "Auto", amount: expense * 0.2, color: .blue)
+                            categoryBubble(icon: "popcorn.fill", name: "Ocio", amount: expense * 0.15, color: .purple)
+                            categoryBubble(icon: "cross.case.fill", name: "Salud", amount: expense * 0.1, color: .red)
+                            categoryBubble(icon: "book.fill", name: "Edu", amount: expense * 0.15, color: .green)
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 2)
+                    }
                 }
-                
-                
-                
-                // Ingresos y Gastos (mini cards)
-                incomeExpenseSection
             }
-            .padding(AppSpacing.sm)
+            .padding(20)
+        }
+        // Background "Liquid Contour"
+        .padding(.horizontal, 16)
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(AppColors.surfacePrimary.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        AppColors.textPrimary.opacity(0.2),
+                                        AppColors.textPrimary.opacity(0.05)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+            }
+            .padding(.horizontal, 16)
         }
     }
-    // MARK: - View Components
+    
+    // MARK: - Componentes
     
     private var periodSelector: some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: 0) { // Spacing 0 para controlar con padding interno
             ForEach(Period.allCases, id: \.self) { period in
                 Button(action: {
                     withAnimation(.easeOut(duration: 0.2)) {
@@ -107,119 +149,112 @@ struct BalanceCardView: View {
                     }
                 }) {
                     Text(period.rawValue)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(
                             selectedPeriod == period
                                 ? AppColors.textPrimary
                                 : AppColors.textSecondary
                         )
-                        .padding(.horizontal, AppSpacing.sm)
-                        .padding(.vertical, AppSpacing.xs)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
                         .background {
                             if selectedPeriod == period {
                                 Capsule()
-                                    .fill(AppColors.primary.opacity(0.2))
-                                    .overlay {
-                                        Capsule()
-                                            .strokeBorder(AppColors.primary.opacity(0.4), lineWidth: 0.5)
-                                    }
-                            } else {
-                                Capsule()
-                                    .fill(Color.clear)
+                                    .fill(AppColors.surfaceElevated)
                             }
                         }
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, AppSpacing.xs)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private var incomeExpenseSection: some View {
-        HStack(spacing: AppSpacing.sm) {
-            incomeModule
-            expenseModule
+    // Nuevas Cápsulas Estilo App (Limpias, sin iconos)
+    private var incomeExpenseCapsules: some View {
+        HStack(spacing: 12) {
+            // Cápsula Ingresos (Verde Sutil)
+            statCapsule(
+                title: "Ingresos",
+                amount: formattedIncome,
+                color: AppColors.success
+            )
+            
+            // Cápsula Gastos (Roja Sutil)
+            statCapsule(
+                title: "Gastos",
+                amount: formattedExpense,
+                color: Color.red // Forzamos rojo si AppColors.error varía
+            )
         }
     }
     
-    private var incomeModule: some View {
-        VStack(spacing: AppSpacing.xs) {
-            // Título (con más aire respecto a los bordes)
-            Text("Ingresos")
-                .font(AppFonts.caption)
+    private func statCapsule(title: String, amount: String, color: Color) -> some View {
+        // Al quitar el icono, usamos VStack para apilar título y monto
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption2)
+                .fontWeight(.semibold)
                 .foregroundStyle(AppColors.textSecondary)
+                .textCase(.uppercase)
             
-            // Bloque compacto: ícono + monto (centrado visualmente)
-            HStack(spacing: AppSpacing.xs) {
-                // Ícono dentro de círculo translúcido
+            Text(showBalance ? amount : "••••")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundStyle(AppColors.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading) // Asegura que ocupe el ancho disponible y alinee a la izq
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(color.opacity(0.05)) // Fondo muy sutil del color correspondiente
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(color.opacity(0.15), lineWidth: 1) // Borde sutil del color
+                )
+        }
+    }
+    
+    private func categoryBubble(icon: String, name: String, amount: Double, color: Color) -> some View {
+        Button(action: {}) {
+            VStack(spacing: 6) {
                 ZStack {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(AppColors.success)
+                    Circle()
+                        .fill(color.opacity(0.1))
+                        .overlay(
+                            Circle()
+                                .stroke(color.opacity(0.3), lineWidth: 1)
+                        )
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 18))
+                        .foregroundStyle(color)
                 }
                 
-                // Monto (formando bloque con ícono)
-                Text(showBalance ? formattedIncome : "••••")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                Text(amount.formatCompact())
+                    .font(.caption2)
+                    .fontWeight(.semibold)
                     .foregroundStyle(AppColors.textPrimary)
-                    .contentTransition(.opacity)
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppSpacing.sm)
-        .padding(.horizontal, AppSpacing.sm)
-        .frame(minHeight: 60)
-        .overlay {
-            RoundedRectangle(cornerRadius: AppSpacing.md)
-                .strokeBorder(AppColors.success.opacity(0.9), lineWidth: 1)
-        }
-    }
-    
-    private var expenseModule: some View {
-        VStack(spacing: AppSpacing.xs) {
-            // Título (con más aire respecto a los bordes)
-            Text("Gastos")
-                .font(AppFonts.caption)
-                .foregroundStyle(AppColors.textSecondary)
-            
-            // Bloque compacto: ícono + monto (centrado visualmente)
-            HStack(spacing: AppSpacing.xs) {
-                // Ícono dentro de círculo translúcido
-                ZStack {
-                    Image(systemName: "arrow.down")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(AppColors.error)
-                }
-                
-                // Monto (formando bloque con ícono)
-                Text(showBalance ? formattedExpense : "••••")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .contentTransition(.opacity)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppSpacing.sm)
-        .padding(.horizontal, AppSpacing.sm)
-        .frame(minHeight: 60)
-        .overlay {
-            RoundedRectangle(cornerRadius: AppSpacing.md)
-                .strokeBorder(AppColors.error.opacity(0.9), lineWidth: 1)
-        }
+        .buttonStyle(.plain)
     }
 }
 
+// MARK: - Preview
 #Preview {
-    BalanceCardView(
-        balance: 15420.50,
-        formattedBalance: "$15,420.50",
-        percentageChange: "+2.5% vs mes anterior",
-        income: 2500.00,
-        formattedIncome: "$2,500.00",
-        expense: 1249.50,
-        formattedExpense: "$1,249.50"
-    )
-    .padding()
-    .background(AppBackground())
+    ZStack {
+        AppBackground()
+        BalanceCardView(
+            balance: 15420.50,
+            formattedBalance: "$15,420.50",
+            percentageChange: "+2.5% vs mes anterior",
+            income: 2500.00,
+            formattedIncome: "$2,500.00",
+            expense: 1249.50,
+            formattedExpense: "$1,249.50"
+        )
+        .padding()
+    }
 }

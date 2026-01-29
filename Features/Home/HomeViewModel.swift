@@ -57,17 +57,23 @@ class HomeViewModel: ObservableObject {
             GoalsProgressCardView.Goal(
                 name: "Viaje a Europa",
                 currentAmount: 2500.0,
-                targetAmount: 5000.0
+                targetAmount: 5000.0,
+                icon: "airplane",
+                reward: "Bono de Viaje $200k"
             ),
             GoalsProgressCardView.Goal(
                 name: "Fondo de emergencia",
                 currentAmount: 3200.0,
-                targetAmount: 10000.0
+                targetAmount: 10000.0,
+                icon: "shield.fill",
+                reward: "Tasa Preferencial"
             ),
             GoalsProgressCardView.Goal(
                 name: "Renovación del hogar",
                 currentAmount: 800.0,
-                targetAmount: 3000.0
+                targetAmount: 3000.0,
+                icon: "house.fill",
+                reward: "Decoración Premium"
             )
         ]
         

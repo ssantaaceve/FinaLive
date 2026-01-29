@@ -32,7 +32,7 @@ struct HomeView: View {
                     
                     // Contenido scrolleable
                     ScrollView {
-                        LazyVStack(spacing: AppSpacing.lg) {
+                        LazyVStack(spacing: 16) { // Compact Vertical Rhythm
                             balanceCard
                             
                             goalsProgressCard
@@ -41,7 +41,7 @@ struct HomeView: View {
                             
                             transactionsSection
                         }
-                        .padding(.bottom, 100) // Espacio para la bottom bar persistente
+                        .padding(.bottom, 100)
                     }
                 }
             }
@@ -76,7 +76,6 @@ struct HomeView: View {
             expense: viewModel.expense,
             formattedExpense: viewModel.formattedExpense
         )
-        .padding(.horizontal, AppSpacing.md)
     }
     
     private var goalsProgressCard: some View {
@@ -95,7 +94,6 @@ struct HomeView: View {
                 print("Transaction tapped: \(transaction.description)")
             }
         )
-        .padding(.horizontal, AppSpacing.md)
     }
     
     private var transactionsSection: some View {

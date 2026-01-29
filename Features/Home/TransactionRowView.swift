@@ -31,19 +31,12 @@ struct TransactionRowView: View {
                 // Monto (punto focal visual)
                 amountView
             }
-            .padding(.vertical, AppSpacing.md)
-            .padding(.horizontal, AppSpacing.md)
-            .background {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppColors.surfacePrimary.opacity(0.6))
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(AppColors.border.opacity(0.3), lineWidth: 1)
+            .padding(.vertical, 12) // Vertical padding for row
+            .padding(.horizontal, 20) // Horizontal padding to align with container
+            .contentShape(Rectangle()) // Ensure tappable area
+            .background(
+                AppColors.surfacePrimary.opacity(isPressed ? 0.05 : 0.0) // Subtle press state
             )
-            .scaleEffect(isPressed ? 0.98 : 1.0)
-            .opacity(isPressed ? 0.8 : 1.0)
-            .animation(.easeOut(duration: 0.15), value: isPressed)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
