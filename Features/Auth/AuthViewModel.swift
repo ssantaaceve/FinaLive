@@ -17,7 +17,8 @@ class AuthViewModel: ObservableObject {
     
     // MARK: - Published Properties
     
-    @Published var authMode: AuthMode = .login
+
+    @Published var isAuthenticated: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -26,84 +27,26 @@ class AuthViewModel: ObservableObject {
     }
     
     // MARK: - Login Properties
-    @Published var loginEmail: String = ""
-    @Published var loginPassword: String = ""
-    
-    // MARK: - Sign Up Properties
-    @Published var signUpName: String = ""
-    @Published var signUpEmail: String = ""
-    @Published var signUpPhone: String = ""
-    @Published var signUpPassword: String = ""
-    
-    enum AuthMode {
-        case login
-        case signUp
-    }
-    
-    // MARK: - Validation
-    
-    var isLoginValid: Bool {
-        !loginEmail.isEmpty && !loginPassword.isEmpty
-    }
-    
-    var isSignUpValid: Bool {
-        !signUpName.isEmpty &&
-        !signUpEmail.isEmpty &&
-        !signUpPhone.isEmpty &&
-        !signUpPassword.isEmpty
-    }
+    // Login se maneja exclusivamente con Apple ID / Keyless
     
     // MARK: - Actions
     
-    func toggleAuthMode() {
-        authMode = authMode == .login ? .signUp : .login
+    // Login con Apple ID (Simulado para MVP)
+    func handleAppleLogin() async {
         clearError()
-    }
-    
-    func login() async {
-        guard isLoginValid else {
-            errorMessage = "Por favor completa todos los campos"
-            return
+        isLoading = true
+        
+        // Simulación de network delay
+        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5s
+        
+        isLoading = false
+        isAuthenticated = true
+        
+        // Navegación vía Router
+        // Nota: La vista reacciona a isAuthenticated o usa el closure, mantenemos ambos para flexibilidad
+        await MainActor.run {
+            router?.navigateToOnboarding()
         }
-        
-        clearError()
-        isLoading = true
-        
-        // TODO: Implementar login con Supabase
-        // Por ahora solo simulamos
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        isLoading = false
-        router?.navigateToHome()
-    }
-    
-    func signUp() async {
-        guard isSignUpValid else {
-            errorMessage = "Por favor completa todos los campos"
-            return
-        }
-        
-        clearError()
-        isLoading = true
-        
-        // TODO: Implementar sign up con Supabase
-        // Por ahora solo simulamos
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        isLoading = false
-        // Usuario nuevo va a onboarding después de registrarse
-        router?.navigateToOnboarding()
-    }
-    
-    func signInWithApple() async {
-        clearError()
-        isLoading = true
-        
-        // TODO: Implementar Apple Sign In
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        isLoading = false
-        router?.navigateToHome()
     }
     
     // MARK: - Private

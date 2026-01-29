@@ -51,7 +51,6 @@
 				Auth/AuthView.swift,
 				Auth/AuthViewModel.swift,
 				Auth/LoginView.swift,
-				Auth/SignUpView.swift,
 				Home/BalanceCardView.swift,
 				Home/GoalsProgressCardView.swift,
 				Home/HomeBottomNavigationView.swift,
@@ -63,12 +62,12 @@
 				Home/TransactionRowView.swift,
 				IncomesExpenses/AddExpenseView.swift,
 				IncomesExpenses/AddIncomeView.swift,
+				Onboarding/OnboardingInterestsView.swift,
 				Onboarding/OnboardingStep1View.swift,
 				Onboarding/OnboardingStep2View.swift,
 				Onboarding/OnboardingStep3View.swift,
 				Onboarding/OnboardingView.swift,
 				Onboarding/OnboardingViewModel.swift,
-				Onboarding/OnboardingInterestsView.swift,
 			);
 			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
 		};

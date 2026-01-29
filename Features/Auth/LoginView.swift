@@ -2,98 +2,107 @@
 //  LoginView.swift
 //  FinaLive
 //
-//  Created by Sergio Andres  Santa Acevedo on 13/1/2026.
+//  Created by Sergio Andres Santa Acevedo on 28/1/2026.
 //
 
 import SwiftUI
 
-/// Vista de login con email y contraseña
+
 struct LoginView: View {
+    // Inyectamos el ViewModel padre
     @ObservedObject var viewModel: AuthViewModel
-    @FocusState private var focusedField: Field?
     
-    enum Field {
-        case email
-        case password
-    }
+    // Inyectamos la acción de navegación
+    var onLoginSuccess: () -> Void
     
     var body: some View {
-        VStack(spacing: AppSpacing.lg) {
-            emailField
-            passwordField
+        ZStack {
+            // Fondo Base Unificado (AppBackground)
+            AppBackground()
             
-            if let error = viewModel.errorMessage {
-                errorMessageView(error)
+            // Decir adiós al Ellipse manual, AppBackground ya maneja el gradiente
+            
+            
+            VStack(spacing: 0) {
+                // 1. Header (Logo Top Leading - Increased Size)
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "chart.bar.doc.horizontal.fill")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundStyle(AppColors.primary)
+                    
+                    Text("FinaLive")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(AppColors.textPrimary)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, AppSpacing.lg) // More top padding
+                
+                Spacer()
+                
+                // 2. Main Content Group (Text + Action) - Centered
+                VStack(alignment: .leading, spacing: AppSpacing.xl) {
+                    // Hero Text
+                    Text("Domina tus finanzas, cumple tus metas y desbloquea recompensas exclusivas.")
+                        .font(AppFonts.title.bold())
+                        .foregroundStyle(AppColors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .minimumScaleFactor(0.8)
+                    
+                    // Button Group
+                    VStack(spacing: AppSpacing.md) {
+                         // Botón Simulado
+                        Button(action: {
+                            executeLogin()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "apple.logo")
+                                    .font(.system(size: 19))
+                                    .offset(y: -1)
+                                
+                                Text("Sign in with Apple")
+                                    .font(.system(size: 19, weight: .medium, design: .default))
+                            }
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.white)
+                            .cornerRadius(8)
+                        }
+                        .disabled(viewModel.isLoading)
+                        .opacity(viewModel.isLoading ? 0.7 : 1.0)
+                        
+                        // Terms Text
+                        Text("Al continuar aceptas nuestros términos y condiciones.")
+                            .font(.caption2)
+                            .foregroundStyle(AppColors.textSecondary.opacity(0.6))
+                    }
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                
+                Spacer()
+                
+                // Bottom Padding Spacer to prevent content from hitting the very bottom
+                Spacer()
+                    .frame(height: AppSpacing.xl)
             }
         }
     }
     
-    // MARK: - View Components
-    
-    private var emailField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("Email")
-                .font(AppFonts.caption)
-                .foregroundStyle(AppColors.textSecondary)
-            
-            TextField("ejemplo@email.com", text: $viewModel.loginEmail)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-                .autocorrectionDisabled()
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.primary)
-                .focused($focusedField, equals: .email)
-                .padding(AppSpacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(AppColors.surfacePrimary)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(AppColors.border, lineWidth: 0.5)
-                        }
-                }
-                .accentColor(AppColors.primary)
+    private func executeLogin() {
+        Task {
+            await viewModel.handleAppleLogin()
+            // La navegación la maneja ahora el router dentro del VM o el closure onLoginSuccess
+            // Mantenemos onLoginSuccess para compatibilidad con AuthView
+            onLoginSuccess() 
         }
-    }
-    
-    private var passwordField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("Contraseña")
-                .font(AppFonts.caption)
-                .foregroundStyle(AppColors.textSecondary)
-            
-            SecureField("Contraseña", text: $viewModel.loginPassword)
-                .textContentType(.password)
-                .foregroundStyle(AppColors.textPrimary)
-                .tint(AppColors.primary)
-                .focused($focusedField, equals: .password)
-                .padding(AppSpacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.sm)
-                        .fill(AppColors.surfacePrimary)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: AppSpacing.sm)
-                                .strokeBorder(AppColors.border, lineWidth: 0.5)
-                        }
-                }
-                .accentColor(AppColors.primary)
-        }
-    }
-    
-    private func errorMessageView(_ message: String) -> some View {
-        HStack(spacing: AppSpacing.xs) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .foregroundStyle(AppColors.error)
-            Text(message)
-                .font(AppFonts.caption)
-                .foregroundStyle(AppColors.error)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
-    LoginView(viewModel: AuthViewModel(router: nil))
-        .padding()
+    LoginView(viewModel: AuthViewModel(router: nil), onLoginSuccess: {})
 }
