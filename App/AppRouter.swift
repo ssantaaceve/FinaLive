@@ -12,10 +12,21 @@ import SwiftUI
 class AppRouter: ObservableObject {
     @Published var currentView: AppView = .auth
     
+    @Published var presentedSheet: Sheet?
+    
     enum AppView {
         case onboarding
         case auth
         case home
+    }
+    
+    enum Sheet: Identifiable {
+        case addExpense
+        case addIncome
+        
+        var id: Int {
+            hashValue
+        }
     }
     
     func navigateToOnboarding() {

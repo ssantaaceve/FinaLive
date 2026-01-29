@@ -32,21 +32,21 @@ enum AppColors {
     // MARK: - Background Gradient Colors
     
     /// Color superior del gradiente - rojo muy oscuro
-    static let gradientTop = Color(red: 0.145, green: 0.0, blue: 0.0) // #250000
+    static let gradientTop = Color(red: 37/255.0, green: 0.0, blue: 0.0) // #250000
     
     /// Color medio del gradiente - casi negro con toque azul
-    static let gradientMiddle = Color(red: 0.0, green: 0.0, blue: 0.031) // #000008
+    static let gradientMiddle = Color(red: 0.0, green: 0.0, blue: 8/255.0) // #000008
     
     /// Color inferior del gradiente - verde azulado oscuro
-    static let gradientBottom = Color(red: 0.0, green: 0.271, blue: 0.302) // #00454d
+    static let gradientBottom = Color(red: 0.0, green: 69/255.0, blue: 77/255.0) // #00454d
     
     // MARK: - Surface Colors (Cards Dark)
     
     /// Superficie principal - cards oscuras con elevación sutil
-    static let surfacePrimary = Color(red: 0.11, green: 0.11, blue: 0.12) // Gris oscuro #1C1C1E
+    static let surfacePrimary = Color(red: 28/255.0, green: 28/255.0, blue: 30/255.0) // Gris oscuro #1C1C1E
     
     /// Superficie elevada - para cards destacadas (ligeramente más clara)
-    static let surfaceElevated = Color(red: 0.17, green: 0.17, blue: 0.18) // #2C2C2E
+    static let surfaceElevated = Color(red: 44/255.0, green: 44/255.0, blue: 46/255.0) // #2C2C2E
     
     // MARK: - Text Colors (White/Gray Hierarchy)
     
@@ -59,19 +59,19 @@ enum AppColors {
     // MARK: - Utility Colors
     
     /// Bordes sutiles - gris oscuro muy sutil
-    static let border = Color(red: 0.28, green: 0.28, blue: 0.30) // #48484A
+    static let border = Color(red: 72/255.0, green: 72/255.0, blue: 74/255.0) // #48484A
     
     /// Estados deshabilitados - gris medio visible en dark UI
-    static let disabled = Color(red: 0.40, green: 0.40, blue: 0.42) // #666668
+    static let disabled = Color(red: 102/255.0, green: 102/255.0, blue: 104/255.0) // #666668
     
     /// Success - verde fintech (coherente con paleta)
     static let success = Color(red: 0.24, green: 0.73, blue: 0.56) // #3DBB8F
     
     /// Warning - tono cálido suave visible en dark
-    static let warning = Color(red: 1.0, green: 0.75, blue: 0.25) // Naranja claro #FFC040
+    static let warning = Color(red: 255/255.0, green: 192/255.0, blue: 64/255.0) // Naranja claro #FFC040
     
     /// Error - rojo suave pero visible en dark UI
-    static let error = Color(red: 1.0, green: 0.37, blue: 0.37) // Rojo claro #FF5F5F
+    static let error = Color(red: 255/255.0, green: 95/255.0, blue: 95/255.0) // Rojo claro #FF5F5F
     
     // MARK: - Legacy Support (mantener para compatibilidad)
     

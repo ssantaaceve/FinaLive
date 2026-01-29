@@ -51,21 +51,19 @@ struct HomeBottomNavigationView: View {
             // Tab Profile (derecha)
             tabButton(for: .profile)
         }
-        .padding(.horizontal, AppSpacing.xl)
-        .padding(.vertical, AppSpacing.md + AppSpacing.xs)
+        .padding(.horizontal, 24) // Fixed internal padding for compact look
+        .padding(.vertical, 12)   // Adjusted vertical padding
         .background {
             // Pill ovalado flotante con efecto glass
             Capsule()
                 .fill(.ultraThinMaterial)
-                .opacity(0.8)
-                .background(
+                .opacity(0.9) // Slightly higher opacity for better contrast
+                .overlay(
                     Capsule()
-                        .fill(Color.clear)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5) // Glass border
                 )
-                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 8)
-                .shadow(color: .black.opacity(0.1), radius: 40, x: 0, y: 16)
+                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5) // Softer shadow
         }
-        .padding(.horizontal, AppSpacing.lg)
         .padding(.bottom, AppSpacing.md)
     }
     
@@ -73,7 +71,7 @@ struct HomeBottomNavigationView: View {
     
     private func tabButton(for tab: BottomTab) -> some View {
         Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(.easeInOut(duration: 0.3)) {
                 selectedTab = tab
             }
         }) {
