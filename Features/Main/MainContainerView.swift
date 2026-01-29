@@ -13,6 +13,7 @@ struct MainContainerView: View {
     @StateObject private var router = AppRouter()
     @State private var selectedTab: HomeBottomNavigationView.BottomTab = .home
     @State private var navigationPath = NavigationPath()
+    @State private var hasAppeared = false
     
     // Estados para el gesto del botón central
     @State private var isDraggingTransaction: Bool = false
@@ -62,15 +63,8 @@ struct MainContainerView: View {
                     .allowsHitTesting(false)
             }
         }
-        // Manejo de navegación global (modales, etc.)
-        .sheet(item: $router.presentedSheet) { sheet in
-            switch sheet {
-            case .addExpense:
-                AddExpenseView()
-            case .addIncome:
-                AddIncomeView()
-            }
-        }
+        .onAppear { hasAppeared = true }
+        .modifier(TransactionSheetsModifier(router: router, isActive: hasAppeared))
     }
     
     // MARK: - Logic
@@ -121,7 +115,32 @@ struct MainContainerView: View {
     }
 }
 
+// MARK: - Transaction Sheets Modifier
 
+/// Aplica los sheets de Add Expense/Income solo tras `onAppear`.
+/// Evita el crash al transicionar onboarding → home (dyld / MainContainerView.body).
+private struct TransactionSheetsModifier: ViewModifier {
+    @ObservedObject var router: AppRouter
+    var isActive: Bool
+    
+    func body(content: Content) -> some View {
+        Group {
+            if isActive {
+                content
+                    .sheet(isPresented: Binding(
+                        get: { router.presentedSheet == .addExpense },
+                        set: { if !$0 { router.presentedSheet = nil } }
+                    )) { AddExpenseView() }
+                    .sheet(isPresented: Binding(
+                        get: { router.presentedSheet == .addIncome },
+                        set: { if !$0 { router.presentedSheet = nil } }
+                    )) { AddIncomeView() }
+            } else {
+                content
+            }
+        }
+    }
+}
 
 #Preview {
     MainContainerView()

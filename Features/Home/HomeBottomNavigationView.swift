@@ -137,12 +137,15 @@ struct HomeBottomNavigationView: View {
                     
                     // Disparar acción si supera el threshold
                     if abs(verticalMovement) > dragThreshold {
-                        if verticalMovement < 0 {
-                            // Drag arriba → Gasto
-                            onTransactionAction(.expense)
-                        } else {
-                            // Drag abajo → Ingreso
-                            onTransactionAction(.income)
+                        // Pequeño delay para permitir que el gesto termine limpia y visualmente
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if verticalMovement < 0 {
+                                // Drag arriba → Gasto
+                                onTransactionAction(.expense)
+                            } else {
+                                // Drag abajo → Ingreso
+                                onTransactionAction(.income)
+                            }
                         }
                     }
                     

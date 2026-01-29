@@ -2,13 +2,13 @@
 //  AddExpenseView.swift
 //  FinaLive
 //
-//  Created by Sergio Andres  Santa Acevedo on 13/1/2026.
+//  Created by Sergio Andres Santa Acevedo on 13/1/2026.
 //
 
 import SwiftUI
 
 /// Vista para registrar un nuevo gasto
-/// Formulario con efecto glass y campos simplificados
+/// Implementación "Liquid Glass Expandable"
 struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -17,7 +17,10 @@ struct AddExpenseView: View {
     @State private var rawAmount: String = "" // Almacena solo números
     @State private var description: String = ""
     @State private var selectedDate: Date = Date()
-    @State private var showDatePicker: Bool = false
+    
+    // UI States for Expandable Modules
+    @State private var isCategoryExpanded: Bool = false
+    @State private var isDateExpanded: Bool = false
     
     @FocusState private var focusedField: Field?
     
@@ -28,34 +31,30 @@ struct AddExpenseView: View {
     }
     
     private let expenseCategories = [
-        "Compras", "Alimentación", "Transporte", "Servicios",
-        "Entretenimiento", "Salud", "Educación", "Otro"
+        "Vivienda y Servicios",
+        "Alimentación",
+        "Transporte",
+        "Compras Personales",
+        "Salud y Bienestar",
+        "Ocio y Vida Social",
+        "Educación y Desarrollo",
+        "Finanzas y Obligaciones",
+        "Otro"
     ]
     
     var body: some View {
         ZStack {
-            // Fondo gradiente
             AppBackground()
             
             ScrollView {
                 VStack(spacing: AppSpacing.lg) {
-                    // Header visual
                     headerSection
-                    
-                    // Categoría
-                    categoryField
-                    
-                    // Monto
-                    amountField
-                    
-                    // Fecha
-                    dateField
-                    
-                    // Descripción
-                    descriptionField
-                    
-                    // Botón de acción
+                    categoryModule
+                    amountModule
+                    dateModule
+                    descriptionModule
                     saveButton
+                        .padding(.top, AppSpacing.md)
                 }
                 .padding(AppSpacing.md)
             }
@@ -70,9 +69,6 @@ struct AddExpenseView: View {
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .sheet(isPresented: $showDatePicker) {
-            datePickerSheet
-        }
     }
     
     // MARK: - Computed Properties
@@ -130,78 +126,187 @@ struct AddExpenseView: View {
     // MARK: - View Components
     
     private var headerSection: some View {
-        VStack(spacing: AppSpacing.xs) {
+        VStack(spacing: 4) {
             Text("Nuevo Gasto")
                 .font(AppFonts.title)
                 .foregroundStyle(AppColors.textPrimary)
+            
+            Text("Registra tus movimientos")
+                .font(AppFonts.caption)
+                .foregroundStyle(AppColors.textSecondary)
         }
-        .padding(.vertical, AppSpacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.bottom, 8)
     }
     
-    private var categoryField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+    // MARK: - Expandable Modules
+    
+    private var categoryModule: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Categoría")
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
+                .padding(.leading, 4)
             
-            Picker("Categoría", selection: $category) {
-                Text("Selecciona una categoría").tag("")
-                ForEach(expenseCategories, id: \.self) { cat in
-                    Text(cat).tag(cat)
+            VStack(spacing: 0) {
+                // Header (Always Visible)
+                Button(action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        isCategoryExpanded.toggle()
+                        // Close other expandables
+                        if isCategoryExpanded { isDateExpanded = false }
+                    }
+                }) {
+                    HStack {
+                        if category.isEmpty {
+                            Text("Selecciona una categoría")
+                                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                        } else {
+                            Text(category)
+                                .fontWeight(.medium)
+                                .foregroundStyle(AppColors.textPrimary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.down")
+                            .foregroundStyle(AppColors.textSecondary)
+                            .rotationEffect(.degrees(isCategoryExpanded ? 180 : 0))
+                    }
+                    .padding(16)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                
+                // Expanded Content
+                if isCategoryExpanded {
+                    Divider()
+                        .background(AppColors.textPrimary.opacity(0.1))
+                        .padding(.horizontal, 16)
+                    
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 12)], spacing: 12) {
+                        ForEach(expenseCategories, id: \.self) { cat in
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    category = cat
+                                    isCategoryExpanded = false
+                                }
+                            }) {
+                                Text(cat)
+                                    .font(.caption)
+                                    .fontWeight(category == cat ? .semibold : .regular)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 12)
+                                    .frame(maxWidth: .infinity)
+                                    .background {
+                                        if category == cat {
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(AppColors.primary.opacity(0.15))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .stroke(AppColors.primary.opacity(0.3), lineWidth: 1)
+                                                )
+                                        } else {
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.black.opacity(0.2))
+                                        }
+                                    }
+                                    .foregroundStyle(category == cat ? AppColors.primary : AppColors.textSecondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(16)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-            .pickerStyle(.menu)
-            .foregroundStyle(category.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
-            .tint(AppColors.textPrimary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, AppSpacing.md)
-            .padding(.horizontal, AppSpacing.sm)
-            .background {
-                RoundedRectangle(cornerRadius: AppSpacing.sm)
-                    .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
-            }
+            .background(GlassModuleContainer())
         }
     }
     
-    private var amountField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+    private var dateModule: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Fecha")
+                .font(AppFonts.caption)
+                .foregroundStyle(AppColors.textSecondary)
+                .padding(.leading, 4)
+            
+            VStack(spacing: 0) {
+                // Header
+                Button(action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        isDateExpanded.toggle()
+                        if isDateExpanded { isCategoryExpanded = false }
+                    }
+                }) {
+                    HStack {
+                        Text(selectedDate.formatted(date: .long, time: .omitted))
+                            .fontWeight(.medium)
+                            .foregroundStyle(AppColors.textPrimary)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "calendar")
+                            .foregroundStyle(isDateExpanded ? AppColors.primary : AppColors.textSecondary)
+                    }
+                    .padding(16)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                
+                // Inline Date Picker
+                if isDateExpanded {
+                    Divider()
+                        .background(AppColors.textPrimary.opacity(0.1))
+                        .padding(.horizontal, 16)
+                    
+                    DatePicker(
+                        "",
+                        selection: $selectedDate,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .tint(AppColors.primary)
+                    .environment(\.colorScheme, .dark) // Force white text
+                    .padding(16)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+            .background(GlassModuleContainer())
+        }
+    }
+    
+    private var amountModule: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Monto")
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
+                .padding(.leading, 4)
             
-            HStack(spacing: AppSpacing.xs) {
+            HStack(spacing: 4) {
                 Text("$")
-                    .font(AppFonts.headline)
-                    .foregroundStyle(rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.5) : AppColors.textPrimary)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.3) : AppColors.textPrimary)
                 
                 ZStack(alignment: .leading) {
-                    // Placeholder visible cuando está vacío
                     if rawAmount.isEmpty {
                         Text("0,00")
-                            .font(AppFonts.headline)
-                            .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundStyle(AppColors.textPrimary.opacity(0.3))
                     }
                     
-                    // Texto formateado visible (se actualiza en tiempo real)
                     if !rawAmount.isEmpty {
                         Text(amount)
-                            .font(AppFonts.headline)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundStyle(AppColors.textPrimary)
-                            .allowsHitTesting(false) // Permitir que los toques pasen al TextField
                     }
                     
-                    // TextField invisible que solo captura números
                     TextField("", text: Binding(
                         get: { rawAmount },
                         set: { newValue in
-                            // Filtrar solo números inmediatamente
                             let numbersOnly = newValue.filter { $0.isNumber }
-                            
-                            // Actualizar rawAmount
                             rawAmount = numbersOnly
-                            
-                            // Formatear inmediatamente en tiempo real
                             if numbersOnly.isEmpty {
                                 amount = ""
                             } else {
@@ -209,128 +314,45 @@ struct AddExpenseView: View {
                             }
                         }
                     ))
-                    .font(AppFonts.headline)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .keyboardType(.numberPad)
-                    .foregroundColor(.clear) // Texto invisible
-                    .accentColor(AppColors.textPrimary) // Cursor visible
+                    .foregroundColor(.clear)
+                    .tint(AppColors.primary)
                     .focused($focusedField, equals: .amount)
-                    .onChange(of: rawAmount) { oldValue, newValue in
-                        // Asegurar que el formateo se actualice cuando cambia rawAmount
-                        if !newValue.isEmpty {
-                            let formatted = formatColombianCurrency(newValue)
-                            if amount != formatted {
-                                amount = formatted
-                            }
-                        } else if !amount.isEmpty {
-                            amount = ""
-                        }
-                    }
                 }
             }
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, AppSpacing.md)
-            .padding(.horizontal, AppSpacing.sm)
-            .background {
-                RoundedRectangle(cornerRadius: AppSpacing.sm)
-                    .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
-            }
-        }
-    }
-    
-    private var dateField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Fecha")
-                .font(AppFonts.caption)
-                .foregroundStyle(AppColors.textSecondary)
-
-            HStack {
-                Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
-                    .font(AppFonts.body)
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                Spacer()
-                
-                Image(systemName: "calendar")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, AppSpacing.md)
-            .padding(.horizontal, AppSpacing.sm)
-            .background {
-                RoundedRectangle(cornerRadius: AppSpacing.sm)
-                    .strokeBorder(
-                        AppColors.textPrimary.opacity(0.3),
-                        lineWidth: 0.5
-                    )
-            }
-            .contentShape(Rectangle())
+            .background(GlassModuleContainer())
             .onTapGesture {
-                showDatePicker = true
+                focusedField = .amount
             }
         }
     }
     
-    private var datePickerSheet: some View {
-        NavigationStack {
-            VStack(spacing: AppSpacing.lg) {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .labelsHidden()
-                .tint(AppColors.primary)
-                .colorScheme(.dark)
-            }
-            .padding(AppSpacing.md)
-            .background(AppBackground())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Listo") {
-                        showDatePicker = false
-                    }
-                    .foregroundStyle(AppColors.primary)
-                }
-            }
-            .toolbarColorScheme(.dark, for: .navigationBar)
-        }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-    }
-    
-    private var descriptionField: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+    private var descriptionModule: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Descripción")
                 .font(AppFonts.caption)
                 .foregroundStyle(AppColors.textSecondary)
+                .padding(.leading, 4)
             
-            ZStack(alignment: .topLeading) {
-                // Placeholder visible cuando está vacío
+            ZStack(alignment: .leading) {
                 if description.isEmpty {
-                    Text("Descripción del gasto")
-                        .font(AppFonts.body)
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.5))
-                        .padding(.vertical, AppSpacing.md)
-                        .padding(.horizontal, AppSpacing.sm)
+                    Text("Ej: Café en Juan Valdez")
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.3))
+                        .padding(.horizontal, 4)
                 }
                 
-                TextField("", text: $description, axis: .vertical)
-                    .font(AppFonts.body)
+                TextField("", text: $description)
                     .foregroundStyle(AppColors.textPrimary)
-                    .tint(AppColors.textPrimary)
+                    .tint(AppColors.primary)
                     .focused($focusedField, equals: .description)
-                    .lineLimit(3...6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, AppSpacing.md)
-                    .padding(.horizontal, AppSpacing.sm)
+                    .submitLabel(.done)
+                    .padding(.horizontal, 4)
             }
-            .background {
-                RoundedRectangle(cornerRadius: AppSpacing.sm)
-                    .strokeBorder(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)
-            }
+            .padding(16)
+            .background(GlassModuleContainer())
         }
     }
     
@@ -343,15 +365,29 @@ struct AddExpenseView: View {
                 .font(AppFonts.headline)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, AppSpacing.md)
+                .padding(.vertical, 16)
                 .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.md)
-                        .fill(AppColors.error.gradient)
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    AppColors.error, 
+                                    AppColors.error.opacity(0.7)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .shadow(color: AppColors.error.opacity(0.4), radius: 10, x: 0, y: 5)
                 }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
         }
         .disabled(!isFormValid)
         .opacity(isFormValid ? 1.0 : 0.5)
-        .padding(.top, AppSpacing.md)
+        .animation(.easeInOut, value: isFormValid)
     }
 }
 

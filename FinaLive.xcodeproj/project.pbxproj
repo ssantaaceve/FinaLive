@@ -48,7 +48,6 @@
 			membershipExceptions = (
 				AddTransaction/AddTransactionView.swift,
 				AddTransaction/AddTransactionViewModel.swift,
-				Core/Design/DesignSystem.swift,
 				Auth/AuthView.swift,
 				Auth/AuthViewModel.swift,
 				Auth/LoginView.swift,

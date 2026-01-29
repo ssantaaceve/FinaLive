@@ -24,8 +24,8 @@ class AppRouter: ObservableObject {
         case addExpense
         case addIncome
         
-        var id: Int {
-            hashValue
+        var id: String {
+            String(describing: self)
         }
     }
     
