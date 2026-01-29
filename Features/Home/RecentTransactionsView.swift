@@ -34,7 +34,7 @@ struct RecentTransactionsView: View {
                     // Lista de transacciones
                     transactionsList
                 }
-                .padding(AppSpacing.md)
+
         
             } else {
                 EmptyView()

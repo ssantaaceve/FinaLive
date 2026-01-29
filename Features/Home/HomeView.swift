@@ -45,7 +45,6 @@ struct HomeView: View {
                             
                             transactionsSection
                         }
-                        .padding(AppSpacing.md)
                         .padding(.bottom, AppSpacing.xl)
                     }
                 }
@@ -170,6 +169,7 @@ struct HomeView: View {
             expense: viewModel.expense,
             formattedExpense: viewModel.formattedExpense
         )
+        .padding(.horizontal, AppSpacing.md)
     }
     
     private var goalsProgressCard: some View {
@@ -188,6 +188,7 @@ struct HomeView: View {
                 print("Transaction tapped: \(transaction.description)")
             }
         )
+        .padding(.horizontal, AppSpacing.md)
     }
     
     private var transactionsSection: some View {
@@ -195,10 +196,11 @@ struct HomeView: View {
             if viewModel.isLoading {
                 ProgressView()
                     .padding(AppSpacing.md)
-            } else {
+            } else if viewModel.recentTransactions.isEmpty {
                 emptyStateView
             }
         }
+        .padding(.horizontal, AppSpacing.md)
     }
     
     private var emptyStateView: some View {

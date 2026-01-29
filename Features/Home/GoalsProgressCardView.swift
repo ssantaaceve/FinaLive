@@ -41,33 +41,13 @@ struct GoalsProgressCardView: View {
     var body: some View {
         Group {
             if !goals.isEmpty {
-                VStack(spacing: AppSpacing.md) {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     // Header
                     headerSection
+                        .padding(.horizontal, AppSpacing.md)
                     
-                    // Lista de metas
-                    goalsList
-                }
-                .padding(AppSpacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: AppSpacing.lg)
-                        .fill(.ultraThinMaterial)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: AppSpacing.lg)
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: [
-                                            AppColors.border.opacity(0.2),
-                                            AppColors.border.opacity(0.1)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 0.5
-                                )
-                        }
-                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                        .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 8)
+                    // Horizontal List
+                    goalsScrollSection
                 }
             } else {
                 EmptyView()
@@ -77,99 +57,117 @@ struct GoalsProgressCardView: View {
     
     // MARK: - View Components
     
+    private var goalsScrollSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppSpacing.md) {
+                ForEach(goals) { goal in
+                    GoalCard(goal: goal)
+                }
+            }
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.bottom, AppSpacing.md)
+        }
+    }
+    
+    // MARK: - View Components
+    
     private var headerSection: some View {
         HStack(spacing: AppSpacing.sm) {
-            // Ícono dentro de círculo translúcido
-            ZStack {
-                Circle()
-                    .fill(AppColors.primary.opacity(0.15))
-                    .frame(width: 40, height: 40)
-                
-                Image(systemName: "target")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(AppColors.primary)
-            }
-            
-            Text("Seguimiento de Metas")
+            Text("Mis Metas")
                 .font(AppFonts.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
             Spacer()
         }
     }
+}
+
+// MARK: - Goal Card Subview
+struct GoalCard: View {
+    let goal: GoalsProgressCardView.Goal
     
-    private var goalsList: some View {
-        VStack(spacing: AppSpacing.md) {
-            ForEach(goals) { goal in
-                goalRow(goal: goal)
-            }
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            headerView
+            
+            Spacer()
+            
+            titleView
+            
+            progressView
+            
+            footerView
         }
+        .padding(AppSpacing.md)
+        .frame(width: 160, height: 130)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(AppColors.surfacePrimary.opacity(0.6))
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(AppColors.border.opacity(0.3), lineWidth: 1)
+        )
     }
     
-    private func goalRow(goal: Goal) -> some View {
-        VStack(spacing: AppSpacing.sm) {
-            // Nombre y porcentaje
-            HStack {
-                Text(goal.name)
-                    .font(AppFonts.body)
-                    .foregroundStyle(AppColors.textPrimary)
+    // MARK: - Subviews
+    
+    private var headerView: some View {
+        HStack {
+            ZStack {
+                Circle()
+                    .fill(AppColors.primary.opacity(0.15))
+                    .frame(width: 32, height: 32)
                 
-                Spacer()
-                
-                Text("\(Int(goal.progress * 100))%")
-                    .font(AppFonts.caption)
-                    .fontWeight(.semibold)
+                Image(systemName: "target")
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(AppColors.primary)
             }
             
-            // Barra de progreso
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Fondo de la barra
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(AppColors.surfacePrimary.opacity(0.5))
-                        .frame(height: 6)
-                    
-                    // Barra de progreso con gradiente
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.primary,
-                                    AppColors.accent
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: geometry.size.width * goal.progress, height: 6)
-                        .animation(.easeOut(duration: 0.3), value: goal.progress)
-                }
-            }
-            .frame(height: 6)
+            Spacer()
             
-            // Texto actual vs objetivo
-            HStack {
-                Text(goal.formattedCurrent)
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textSecondary)
+            Text("\(Int(goal.progress * 100))%")
+                .font(AppFonts.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(AppColors.textSecondary)
+        }
+    }
+    
+    private var titleView: some View {
+        Text(goal.name)
+            .font(AppFonts.subheadline)
+            .fontWeight(.medium)
+            .foregroundStyle(AppColors.textPrimary)
+            .lineLimit(1)
+    }
+    
+    private var progressView: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(AppColors.surfacePrimary)
+                    .frame(height: 4)
                 
-                Text("de")
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textSecondary.opacity(0.6))
-                
-                Text(goal.formattedTarget)
-                    .font(AppFonts.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                Spacer()
+                Capsule()
+                    .fill(AppColors.primary)
+                    .frame(width: max(0, geo.size.width * goal.progress), height: 4)
             }
         }
-        .padding(AppSpacing.sm)
-        .background {
-            RoundedRectangle(cornerRadius: AppSpacing.sm)
-                .fill(AppColors.surfacePrimary.opacity(0.3))
+        .frame(height: 4)
+    }
+    
+    private var footerView: some View {
+        HStack {
+            Text(goal.formattedCurrent)
+                .font(.system(size: 10))
+                .foregroundStyle(AppColors.textPrimary)
+                .fontWeight(.semibold)
+            
+            Spacer()
+            
+            Text("/ \(goal.formattedTarget)")
+                .font(.system(size: 10))
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
 }
