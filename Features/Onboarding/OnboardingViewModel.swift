@@ -11,76 +11,53 @@ import SwiftUI
 /// ViewModel para el onboarding de 3 pantallas
 /// Maneja el estado de cada paso y la navegación
 @MainActor
+
 class OnboardingViewModel: ObservableObject {
     // MARK: - Navigation
     
     @Published var currentStep: Int = 0
-    let totalSteps: Int = 3
+    let totalSteps: Int = 4
     
-    // MARK: - Step 1: Objetivo de ahorro
+    // MARK: - Step 4: Intereses (Final)
     
-    @Published var selectedGoal: SavingsGoal?
-    @Published var customGoalText: String = ""
+    @Published var selectedInterests: Set<OnboardingInterest> = []
+    @Published var othersText: String = ""
     
-    enum SavingsGoal: String, CaseIterable {
+    enum OnboardingInterest: String, CaseIterable, Identifiable {
         case travel = "Viajes"
-        case education = "Estudio"
+        case education = "Educación"
+        case finance = "Finanzas"
+        case business = "Emprendimiento"
         case entertainment = "Entretenimiento"
-        case home = "Hogar"
-        case transportation = "Transporte"
-        case wellness = "Bienestar"
-        case other = "Otro"
+        case sports = "Deporte"
+        case other = "Otros"
+        
+        var id: String { rawValue }
         
         var icon: String {
             switch self {
             case .travel: return "airplane"
-            case .education: return "book"
-            case .entertainment: return "tv"
-            case .home: return "house"
-            case .transportation: return "car"
-            case .wellness: return "heart"
-            case .other: return "ellipsis.circle"
+            case .education: return "book.fill"
+            case .finance: return "chart.bar.fill"
+            case .business: return "briefcase.fill"
+            case .entertainment: return "tv.fill"
+            case .sports: return "sportscourt.fill"
+            case .other: return "star.fill"
             }
         }
     }
     
-    // MARK: - Step 2: Meta de ahorro
+    // MARK: - Logic methods
     
-    @Published var selectedAmountRange: AmountRange?
-    
-    enum AmountRange: String, CaseIterable {
-        case low = "$100 – $300"
-        case medium = "$300 – $600"
-        case high = "$600 – $1,000"
-        case veryHigh = "Más de $1,000"
-        
-        var minValue: Int {
-            switch self {
-            case .low: return 100
-            case .medium: return 300
-            case .high: return 600
-            case .veryHigh: return 1000
+    func toggleInterest(_ interest: OnboardingInterest) {
+        if selectedInterests.contains(interest) {
+            selectedInterests.remove(interest)
+            // Si deseleccionamos 'Otros', limpiamos el texto
+            if interest == .other {
+                othersText = ""
             }
-        }
-    }
-    
-    // MARK: - Step 3: Incentivos
-    
-    @Published var selectedIncentive: Incentive?
-    
-    enum Incentive: String, CaseIterable {
-        case discounts = "Descuentos especiales"
-        case rewards = "Recompensas"
-        case achievements = "Logros y niveles"
-        case exclusive = "Beneficios exclusivos"
-        
-        var icon: String {
-            switch self {
-            case .discounts: return "tag"
-            case .rewards: return "gift"
-            case .achievements: return "trophy"
-            case .exclusive: return "star"
-            }
+        } else {
+            selectedInterests.insert(interest)
         }
     }
     
@@ -88,13 +65,15 @@ class OnboardingViewModel: ObservableObject {
     
     var canGoToNextStep: Bool {
         switch currentStep {
-        case 0:
-            if selectedGoal == .other {
-                return selectedGoal != nil && !customGoalText.trimmingCharacters(in: .whitespaces).isEmpty
+        case 0, 1, 2:
+            return true // Pasos informativos
+        case 3:
+            if selectedInterests.isEmpty { return false }
+            // Si seleccionó 'Otros', validamos que el texto no esté vacío
+            if selectedInterests.contains(.other) && othersText.trimmingCharacters(in: .whitespaces).isEmpty {
+                return false
             }
-            return selectedGoal != nil
-        case 1: return selectedAmountRange != nil
-        case 2: return selectedIncentive != nil
+            return true
         default: return false
         }
     }
@@ -114,7 +93,7 @@ class OnboardingViewModel: ObservableObject {
     }
     
     func completeOnboarding() {
-        // TODO: Persistir datos de onboarding
-        // Por ahora solo almacenamos en memoria
+        // TODO: Persistir datos de onboarding (Intereses) en Supabase
+        print("Onboarding completado con intereses: \(selectedInterests)")
     }
 }

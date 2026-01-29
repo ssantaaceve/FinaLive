@@ -16,11 +16,11 @@ struct OnboardingView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Fondo gradiente
-                AppBackground()
+                // Background
+                AppBackground() // Uses the GlassBackground component
                 
                 VStack(spacing: 0) {
-                    // Pager con las 3 pantallas
+                    // Pager
                     TabView(selection: $viewModel.currentStep) {
                         OnboardingStep1View(viewModel: viewModel)
                             .tag(0)
@@ -30,22 +30,29 @@ struct OnboardingView: View {
                         
                         OnboardingStep3View(viewModel: viewModel)
                             .tag(2)
+                        
+                        OnboardingInterestsView(viewModel: viewModel)
+                            .tag(3)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .animation(.easeInOut(duration: 0.3), value: viewModel.currentStep)
                     
-                    // Botones de navegación
-                    VStack(spacing: 0) {
-                        // Separador sutil
-                        Rectangle()
-                            .fill(AppColors.border.opacity(0.2))
-                            .frame(height: 0.5)
+                    // Indicators & Navigation
+                    VStack(spacing: AppSpacing.lg) {
+                        // Page Indicators
+                        HStack(spacing: 8) {
+                            ForEach(0..<viewModel.totalSteps, id: \.self) { index in
+                                Capsule()
+                                    .fill(index == viewModel.currentStep ? AppColors.primary : AppColors.border)
+                                    .frame(width: index == viewModel.currentStep ? 24 : 8, height: 8)
+                                    .animation(.spring(), value: viewModel.currentStep)
+                            }
+                        }
                         
                         navigationSection
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.top, AppSpacing.lg)
-                            .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
                     }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.bottom, geometry.safeAreaInsets.bottom + AppSpacing.lg)
                 }
             }
         }
@@ -55,34 +62,27 @@ struct OnboardingView: View {
     
     private var navigationSection: some View {
         HStack(spacing: AppSpacing.md) {
-            // Botón Atrás
+            // Back Button (Hidden on first step)
             if viewModel.currentStep > 0 {
                 Button(action: {
                     viewModel.previousStep()
                 }) {
-                    HStack(spacing: AppSpacing.xs) {
-                        Image(systemName: "chevron.left")
-                        Text("Atrás")
-                            .font(AppFonts.body)
-                    }
-                    .foregroundStyle(AppColors.textPrimary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.md)
-                    .background {
-                        RoundedRectangle(cornerRadius: AppSpacing.md)
-                            .fill(AppColors.surfacePrimary)
-                            .overlay {
-                            RoundedRectangle(cornerRadius: AppSpacing.md)
-                                .strokeBorder(AppColors.border, lineWidth: 1)
-                            }
-                    }
+                    Image(systemName: "arrow.left")
+                        .font(.title3)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(width: 50, height: 50)
+                        .background {
+                            Circle()
+                                .fill(AppColors.surfacePrimary)
+                                .overlay(Circle().stroke(AppColors.border, lineWidth: 1))
+                        }
                 }
-                .buttonStyle(.plain)
+                .transition(.scale.combined(with: .opacity))
             }
             
-            // Botón Siguiente / Completar
+            // Next / Complete Button
             PrimaryButton(
-                title: viewModel.currentStep == viewModel.totalSteps - 1 ? "Completar" : "Siguiente"
+                title: viewModel.currentStep == viewModel.totalSteps - 1 ? "Comenzar Aventura" : "Siguiente"
             ) {
                 if viewModel.currentStep == viewModel.totalSteps - 1 {
                     viewModel.completeOnboarding()
