@@ -30,7 +30,7 @@ struct HomeView: View {
                         userName: viewModel.userName,
                         hasNotifications: viewModel.hasNotifications,
                         onNotificationsTap: {
-                            // TODO: Navegar a notificaciones
+                            navigationPath.append(NavigationDestination.notifications)
                         }
                     )
                     
@@ -85,6 +85,8 @@ struct HomeView: View {
                     AddExpenseView()
                 case .addIncome:
                     AddIncomeView()
+                case .notifications:
+                    NotificationsView(router: router)
                 }
             }
             .refreshable {
@@ -98,6 +100,7 @@ struct HomeView: View {
     enum NavigationDestination: Hashable {
         case addExpense
         case addIncome
+        case notifications
     }
     
     // MARK: - View Components
