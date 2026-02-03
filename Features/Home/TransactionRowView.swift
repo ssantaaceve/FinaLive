@@ -13,75 +13,75 @@ struct TransactionRowView: View {
     let transaction: Transaction
     let onTap: (() -> Void)?
     
-    @State private var isPressed = false
-    
     init(transaction: Transaction, onTap: (() -> Void)? = nil) {
         self.transaction = transaction
         self.onTap = onTap
+    }
+    
+    // MARK: - Helper Types
+    
+    private var categoryStyle: (icon: String, color: Color) {
+        CategoryMapper.styleForCategory(transaction.category)
     }
     
     var body: some View {
         Button(action: {
             onTap?()
         }) {
-            HStack(alignment: .center, spacing: AppSpacing.md) {
-                // Información de la transacción
-                transactionInfo
+            HStack(spacing: 16) {
+                // 1. Icono de Categoría
+                ZStack {
+                    Circle()
+                        .fill(categoryStyle.color.opacity(0.25)) // Mayor contraste (0.15 -> 0.25)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: categoryStyle.icon)
+                        .font(.system(size: 18))
+                        .foregroundStyle(categoryStyle.color)
+                }
                 
-                // Monto (punto focal visual)
-                amountView
+                // 2. Información
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(transaction.description ?? transaction.category)
+                        .font(AppFonts.body)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(AppColors.textPrimary) // Blanco Brillante
+                        .lineLimit(1)
+                        .truncationMode(.tail) // Cortar con "..." si es largo
+                    
+                    Text(transaction.formattedDate)
+                        .font(AppFonts.caption)
+                        .foregroundStyle(AppColors.textSecondary) // Gris
+                }
+                
+                Spacer(minLength: 8) // Espacio mínimo para que no se peguen
+                
+                // 3. Monto
+                Text(transaction.formattedAmount)
+                    .font(AppFonts.callout)
+                    .fontWeight(.bold)
+                    .foregroundStyle(transaction.type == .income ? AppColors.success : AppColors.error)
+                    .lineLimit(1) // Obligatorio una sola línea
+                    .minimumScaleFactor(0.7) // Reduce tamaño si no cabe
+                    .layoutPriority(1) // Prioridad sobre la descripción
             }
-            .padding(.vertical, 12) // Vertical padding for row
-            .padding(.horizontal, 20) // Horizontal padding to align with container
-            .contentShape(Rectangle()) // Ensure tappable area
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(LiquidRowButtonStyle())
+    }
+    // Eliminar extensiones antiguas si existen
+}
+
+struct LiquidRowButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
             .background(
-                AppColors.surfacePrimary.opacity(isPressed ? 0.05 : 0.0) // Subtle press state
+                Color.white.opacity(configuration.isPressed ? 0.05 : 0.001)
             )
-        }
-        .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
-        )
-    }
-    
-    // MARK: - View Components
-    
-    private var transactionInfo: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            // Descripción principal
-            Text(transaction.description ?? transaction.category)
-                .font(AppFonts.headline)
-                .fontWeight(.medium)
-                .foregroundStyle(AppColors.textPrimary)
-                .lineLimit(1)
-            
-            // Fecha y categoría (secundaria)
-            HStack(spacing: AppSpacing.xs) {
-                Text(transaction.formattedDate)
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                Text("•")
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.5))
-                
-                Text(transaction.category)
-                    .font(AppFonts.caption)
-                    .foregroundStyle(AppColors.textPrimary)
-            }
-            .lineLimit(1)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    private var amountView: some View {
-        Text(transaction.formattedAmount)
-            .font(AppFonts.headline)
-            .fontWeight(.semibold)
-            .foregroundStyle(transaction.type == .income ? AppColors.success : AppColors.error)
-            .multilineTextAlignment(.trailing)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 

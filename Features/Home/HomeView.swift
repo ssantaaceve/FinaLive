@@ -12,7 +12,8 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var router: AppRouter
-    @State private var navigationPath = NavigationPath()
+
+    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -50,6 +51,8 @@ struct HomeView: View {
                 switch destination {
                 case .notifications:
                     NotificationsView(router: router)
+                case .allTransactions:
+                    AllTransactionsView()
                 }
             }
             .refreshable {
@@ -65,6 +68,7 @@ struct HomeView: View {
     
     enum NavigationDestination: Hashable {
         case notifications
+        case allTransactions
     }
     
     // MARK: - View Components
@@ -93,12 +97,16 @@ struct HomeView: View {
         RecentTransactionsView(
             transactions: viewModel.recentTransactions,
             onSeeAllTap: {
-                // TODO: Navegar a lista completa de transacciones
-                print("Ver todos los movimientos")
+                navigationPath.append(NavigationDestination.allTransactions)
             },
             onTransactionTap: { transaction in
                 // TODO: Navegar a detalle de transacción
                 print("Transaction tapped: \(transaction.description)")
+            },
+            onDeleteTransaction: { transaction in
+                Task {
+                    await viewModel.deleteTransaction(transaction)
+                }
             }
         )
     }
@@ -135,5 +143,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(router: AppRouter())
+    HomeView(router: AppRouter(), navigationPath: .constant(NavigationPath()))
 }

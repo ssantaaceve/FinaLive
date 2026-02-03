@@ -103,6 +103,32 @@ class HomeViewModel: ObservableObject {
         isLoading = false
     }
     
+    func deleteTransaction(_ transaction: Transaction) async {
+        // Optimistic UI Update: Eliminar inmediatamente de la lista local
+        /* 
+           Nota: Si hay muchas transacciones, filtrar todo el array puede ser O(n).
+           Para 10-50 items está bien.
+        */
+        guard let index = recentTransactions.firstIndex(where: { $0.id == transaction.id }) else { return }
+        let deletedItem = recentTransactions.remove(at: index)
+        
+        // Recalcular localmente para feedback inmediato
+        let cycle = CycleEngine.calculateCurrentCycle(startDay: cycleStartDay)
+        calculateBalance(from: recentTransactions, in: cycle)
+        
+        do {
+            try await transactionRepository.deleteTransaction(id: transaction.id)
+            print("Transaction deleted successfully: \(transaction.id)")
+        } catch {
+            print("Error deleting transaction: \(error)")
+            errorMessage = "No se pudo eliminar: \(error.localizedDescription)"
+            
+            // Revertir (Rollback) si falla
+            recentTransactions.insert(deletedItem, at: index)
+            calculateBalance(from: recentTransactions, in: cycle)
+        }
+    }
+    
     private func calculateBalance(from transactions: [Transaction], in cycle: (start: Date, end: Date)) {
         // Filtramos las transacciones que pertenecen a ESTE ciclo
         let cycleTransactions = CycleEngine.filterTransactions(transactions, in: cycle)

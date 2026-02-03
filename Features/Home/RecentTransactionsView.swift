@@ -13,16 +13,20 @@ struct RecentTransactionsView: View {
     let transactions: [Transaction]
     let onSeeAllTap: (() -> Void)?
     let onTransactionTap: ((Transaction) -> Void)?
+    let onDeleteTransaction: ((Transaction) -> Void)? // Nuevo callback
     
     init(
         transactions: [Transaction],
         onSeeAllTap: (() -> Void)? = nil,
-        onTransactionTap: ((Transaction) -> Void)? = nil
+        onTransactionTap: ((Transaction) -> Void)? = nil,
+        onDeleteTransaction: ((Transaction) -> Void)? = nil
     ) {
         self.transactions = transactions
         self.onSeeAllTap = onSeeAllTap
         self.onTransactionTap = onTransactionTap
+        self.onDeleteTransaction = onDeleteTransaction
     }
+    
     
     var body: some View {
         Group {
@@ -37,32 +41,36 @@ struct RecentTransactionsView: View {
                     
                     // Lista de transacciones
                     VStack(spacing: 0) {
-                        ForEach(Array(transactions.prefix(5).enumerated()), id: \.element.id) { index, transaction in
+                        // Limit to 10 items
+                        ForEach(Array(transactions.prefix(10).enumerated()), id: \.element.id) { index, transaction in
                             if index > 0 {
                                 Divider()
                                     .background(AppColors.border.opacity(0.2))
-                                    .padding(.leading, 20)
+                                    .padding(.leading, 64) // Indent divider past icon
                             }
                             
-                            TransactionRowView(transaction: transaction) {
-                                onTransactionTap?(transaction)
-                            }
+                            SwipeableRow(content: {
+                                TransactionRowView(transaction: transaction) {
+                                    onTransactionTap?(transaction)
+                                }
+                            }, onDelete: {
+                                onDeleteTransaction?(transaction)
+                            })
                         }
                     }
                 }
-                // AQUÍ ESTÁ EL CAMBIO APLICADO:
                 .background {
                     ZStack {
-                        // Pure Liquid Contour (No Ugly Gray)
+                        // Pure Liquid Contour
                         RoundedRectangle(cornerRadius: 24)
-                            .fill(AppColors.surfacePrimary.opacity(0.05)) // Almost invisible fill
+                            .fill(AppColors.surfacePrimary.opacity(0.05))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 24)
                                     .strokeBorder(
                                         LinearGradient(
                                             colors: [
-                                                AppColors.textPrimary.opacity(0.2), // Light Top
-                                                AppColors.textPrimary.opacity(0.05) // Faded Bottom
+                                                AppColors.textPrimary.opacity(0.2),
+                                                AppColors.textPrimary.opacity(0.05)
                                             ],
                                             startPoint: .top,
                                             endPoint: .bottom
@@ -72,7 +80,7 @@ struct RecentTransactionsView: View {
                             )
                     }
                 }
-                .padding(.horizontal, 16) // External Margin
+                .padding(.horizontal, 16)
             } else {
                 EmptyView()
             }
@@ -98,16 +106,6 @@ struct RecentTransactionsView: View {
                     .foregroundStyle(AppColors.primary)
             }
             .buttonStyle(.plain)
-        }
-    }
-    
-    private var transactionsList: some View {
-        VStack(spacing: AppSpacing.sm) {
-            ForEach(transactions) { transaction in
-                TransactionRowView(transaction: transaction) {
-                    onTransactionTap?(transaction)
-                }
-            }
         }
     }
 }

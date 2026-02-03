@@ -37,7 +37,7 @@ struct CategoryMapper {
     }
     
     // Configuración de Estilo por Categoría
-    private static func styleForCategory(_ category: String) -> (icon: String, color: Color) {
+    static func styleForCategory(_ category: String) -> (icon: String, color: Color) {
         switch category {
         case "Vivienda y Servicios":
             return ("house.fill", Color.blue)

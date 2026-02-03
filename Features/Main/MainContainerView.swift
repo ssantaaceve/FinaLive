@@ -12,13 +12,27 @@ import SwiftUI
 struct MainContainerView: View {
     @StateObject private var router = AppRouter()
     @State private var selectedTab: HomeBottomNavigationView.BottomTab = .home
-    @State private var navigationPath = NavigationPath()
+    @State private var homeNavigationPath = NavigationPath() // State hoisted
     @State private var hasAppeared = false
     
     // Estados para el gesto del botón central
     @State private var isDraggingTransaction: Bool = false
     @State private var dragDirection: HomeBottomNavigationView.DragDirection = .none
     @State private var dragProgress: CGFloat = 0
+    
+    // Binding personalizado para detectar re-tap en Home
+    private var tabSelectionBinding: Binding<HomeBottomNavigationView.BottomTab> {
+        Binding(
+            get: { selectedTab },
+            set: { newValue in
+                if newValue == selectedTab && newValue == .home {
+                    // Si ya estamos en Home y tocamos de nuevo: Pop to Root
+                    homeNavigationPath = NavigationPath()
+                }
+                selectedTab = newValue
+            }
+        )
+    }
     
     var body: some View {
         ZStack {
@@ -28,7 +42,7 @@ struct MainContainerView: View {
             // Contenido Principal
             Group {
                 if selectedTab == .home {
-                    HomeView(router: router)
+                    HomeView(router: router, navigationPath: $homeNavigationPath)
                         .transition(.move(edge: .leading))
                 } else if selectedTab == .profile {
                     ProfileView(router: router)
@@ -46,7 +60,7 @@ struct MainContainerView: View {
                     Spacer()
                     
                     HomeBottomNavigationView(
-                        selectedTab: $selectedTab,
+                        selectedTab: tabSelectionBinding,
                         onTransactionAction: { action in
                             handleTransactionAction(action)
                         },
