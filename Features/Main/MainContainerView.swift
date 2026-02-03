@@ -31,7 +31,7 @@ struct MainContainerView: View {
                     HomeView(router: router)
                         .transition(.move(edge: .leading))
                 } else if selectedTab == .profile {
-                    ProfileView()
+                    ProfileView(router: router)
                         .transition(.move(edge: .trailing))
                 }
             }
@@ -41,20 +41,23 @@ struct MainContainerView: View {
             }
             
             // Navegación Inferior Flotante (Persistente)
-            VStack {
-                Spacer()
-                
-                HomeBottomNavigationView(
-                    selectedTab: $selectedTab,
-                    onTransactionAction: { action in
-                        handleTransactionAction(action)
-                    },
-                    isDragging: $isDraggingTransaction,
-                    dragDirection: $dragDirection,
-                    dragProgress: $dragProgress
-                )
+            if !router.isTabBarHidden {
+                VStack {
+                    Spacer()
+                    
+                    HomeBottomNavigationView(
+                        selectedTab: $selectedTab,
+                        onTransactionAction: { action in
+                            handleTransactionAction(action)
+                        },
+                        isDragging: $isDraggingTransaction,
+                        dragDirection: $dragDirection,
+                        dragProgress: $dragProgress
+                    )
+                }
+                .transition(.move(edge: .bottom)) // Animación suave al entrar/salir
+                .ignoresSafeArea(.keyboard)
             }
-            .ignoresSafeArea(.keyboard)
             
             // Overlay de efectos globales (Drag)
             if isDraggingTransaction && dragDirection != .none {

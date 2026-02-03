@@ -12,6 +12,9 @@ import SwiftUI
 /// Maneja datos del usuario, gamificación y configuraciones
 @MainActor
 class ProfileViewModel: ObservableObject {
+    // MARK: - Dependencies
+    private let userRepository: UserRepositoryProtocol
+    
     // MARK: - User Info
     @Published var userName: String = "Sergio Andrés"
     @Published var userEmail: String = "sergio@example.com"
@@ -27,8 +30,37 @@ class ProfileViewModel: ObservableObject {
     // MARK: - Settings State
     @Published var notificationsEnabled: Bool = true
     @Published var faceIDEnabled: Bool = false
+    @Published var cycleStartDay: Int = 1 // Por defecto
+    
+    init(userRepository: UserRepositoryProtocol = SupabaseUserRepository()) {
+        self.userRepository = userRepository
+        Task { await loadProfile() }
+    }
     
     // MARK: - Logic
+    
+    func loadProfile() async {
+        do {
+            let profile = try await userRepository.fetchUserProfile()
+            self.cycleStartDay = profile.cycleStartDay
+            // TODO: Cargar nombre real también si es necesario
+        } catch {
+            print("Error cargando perfil: \(error)")
+        }
+    }
+    
+    func updateCycleDay(_ day: Int) {
+        Task {
+            do {
+                try await userRepository.updateCycleStartDay(day)
+                self.cycleStartDay = day
+                // Notificar a otras partes de la app para que recarguen
+                NotificationCenter.default.post(name: .didUpdateTransactions, object: nil)
+            } catch {
+                print("Error actualizando ciclo: \(error)")
+            }
+        }
+    }
     
     var progressToNextLevel: Double {
         return Double(currentPoints) / Double(nextLevelPoints)
@@ -37,6 +69,13 @@ class ProfileViewModel: ObservableObject {
     func logout() {
         print("Cerrando sesión...")
         // Aquí iría la lógica real de logout
+        Task {
+            do {
+                try await SupabaseService.shared.client.auth.signOut()
+            } catch {
+                print("Error saliendo: \(error)")
+            }
+        }
     }
     
     func toggleNotifications() {

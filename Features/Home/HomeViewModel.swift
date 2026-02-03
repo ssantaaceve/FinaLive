@@ -12,20 +12,30 @@ import Foundation
 @MainActor
 class HomeViewModel: ObservableObject {
     private let transactionRepository: TransactionRepositoryProtocol
+    private let userRepository: UserRepositoryProtocol
     
     @Published var balance: Decimal = 0.0
     @Published var income: Decimal = 0.0
     @Published var expense: Decimal = 0.0
     @Published var percentageChange: String = ""
     @Published var isLoading: Bool = false
-    @Published var userName: String = "Sergio" // TODO: Cargar del perfil real
+    @Published var userName: String = "Usuario"
     @Published var hasNotifications: Bool = false
     @Published var goals: [GoalsProgressCardView.Goal] = []
     @Published var recentTransactions: [Transaction] = []
+    @Published var categoryDistributions: [CategoryDistributionItem] = [] // Data Viz Data
     @Published var errorMessage: String?
     
-    init(transactionRepository: TransactionRepositoryProtocol = SupabaseTransactionRepository()) {
+    // Estados de Ciclo
+    @Published var currentCycleRange: String = ""
+    @Published var cycleStartDay: Int = 1
+    
+    init(
+        transactionRepository: TransactionRepositoryProtocol = SupabaseTransactionRepository(),
+        userRepository: UserRepositoryProtocol = SupabaseUserRepository()
+    ) {
         self.transactionRepository = transactionRepository
+        self.userRepository = userRepository
         
         // Suscribirse a cambios en transacciones para recarga automática
         NotificationCenter.default.addObserver(forName: .didUpdateTransactions, object: nil, queue: .main) { [weak self] _ in
@@ -67,25 +77,45 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let transactions = try await transactionRepository.fetchTransactions()
-            self.recentTransactions = transactions
-            calculateBalance(from: transactions)
+            // 1. Cargar Perfil para saber el día de corte
+            let profile = try await userRepository.fetchUserProfile()
+            self.cycleStartDay = profile.cycleStartDay
+            
+            // 2. Calcular Ciclo Actual
+            let cycle = CycleEngine.calculateCurrentCycle(startDay: cycleStartDay)
+            self.currentCycleRange = CycleEngine.formatCycleDateRange(start: cycle.start, end: cycle.end)
+            
+            // 3. Cargar Transacciones
+            let allTransactions = try await transactionRepository.fetchTransactions()
+            self.recentTransactions = allTransactions
+            
+            // 4. Calcular Balance Filtrado por Ciclo
+            calculateBalance(from: allTransactions, in: cycle)
             
             // TODO: Cargar metas reales
             loadMockGoals()
             
         } catch {
             errorMessage = "Error cargando datos: \(error.localizedDescription)"
+            print("Error detallado: \(error)")
         }
         
         isLoading = false
     }
     
-    private func calculateBalance(from transactions: [Transaction]) {
+    private func calculateBalance(from transactions: [Transaction], in cycle: (start: Date, end: Date)) {
+        // Filtramos las transacciones que pertenecen a ESTE ciclo
+        let cycleTransactions = CycleEngine.filterTransactions(transactions, in: cycle)
+        
+        // Data Viz: Calculamos distribución de gastos
+        self.categoryDistributions = CategoryMapper.mapToDistribution(transactions: cycleTransactions)
+        
         var newIncome: Decimal = 0
         var newExpense: Decimal = 0
+        var totalBalance: Decimal = 0 // El balance total suele ser histórico, pero aquí calculamos cashflow del ciclo
         
-        for transaction in transactions {
+        // Calculamos Cashflow del Ciclo
+        for transaction in cycleTransactions {
             if transaction.type == .income {
                 newIncome += transaction.amount
             } else {
@@ -93,12 +123,37 @@ class HomeViewModel: ObservableObject {
             }
         }
         
+        // Balance histórico (opcional, si queremos mostrar patrimonio neto en vez de cashflow del mes)
+        // Por ahora, mostraremos el "Dinero Libre" del periodo (Ingresos - Gastos del ciclo)
+        // Si el usuario prefiere "Saldo en Cuenta", deberíamos sumar TODO el historial.
+        // Estrategia: Balance Grande = Patrimonio (Todo el historial). Ingresos/Gastos = Ciclo.
+        
+        var historicalBalance: Decimal = 0
+        for transaction in transactions {
+             if transaction.type == .income {
+                historicalBalance += transaction.amount
+            } else {
+                historicalBalance += transaction.amount // Amount es negativo para gastos? Verificar Transaction Model.
+                // En Transaction model: amount es Decimal positivo, type define signo.
+                // Pero wait, si amount es positivo siempre, entonces:
+                historicalBalance -= transaction.type == .expense ? transaction.amount : 0
+            }
+        }
+        // Corrección: Como calculé arriba 'newExpense' sumando positivos, aquí resto.
+        
         self.income = newIncome
         self.expense = newExpense
+        
+        // Decisión de Producto: ¿Qué mostramos en "Balance Total"?
+        // Opción A: Lo que queda del mes (Ingresos Ciclo - Gastos Ciclo).
+        // Opción B: Saldo Real en banco (Histórico).
+        // Dado que es un "Dashboard de Ciclo", suele ser más útil "Cuánto me queda este mes".
+        // Pero el label dice "Balance Total".
+        // Vamos a mostrar el Cashflow del Ciclo como Balance Principal para que cuadre con las cápsulas.
         self.balance = newIncome - newExpense
         
         // Simulado por ahora
-        self.percentageChange = "+0% vs mes anterior"
+        self.percentageChange = "Ciclo actual"
     }
     
     private func loadMockGoals() {

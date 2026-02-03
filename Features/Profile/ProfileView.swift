@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @ObservedObject var router: AppRouter
     @StateObject private var viewModel = ProfileViewModel()
     @State private var showComingSoonAlert = false
     
@@ -35,9 +36,11 @@ struct ProfileView: View {
                     
                     // 5. Danger Zone
                     logoutButton
+                        .padding(.top, 24)
                 }
+                .frame(maxWidth: .infinity)
                 .padding(AppSpacing.md)
-                .padding(.bottom, 120) // Critical bottom padding
+                .padding(.bottom, 140) // Critical bottom padding adjusted
             }
             .background(AppBackground())
             .navigationTitle("Perfil")
@@ -208,6 +211,16 @@ struct ProfileView: View {
                 isOn: $viewModel.faceIDEnabled
             )
             
+            NavigationLink(destination: CycleConfigView(viewModel: viewModel, router: router)) {
+                GlassSettingRow(
+                    icon: "calendar.badge.clock",
+                    color: AppColors.success,
+                    title: "Ciclo Financiero",
+                    showChevron: true
+                )
+            }
+            .buttonStyle(.plain) // Necesario para que no se tinten todos los elementos
+            
             GlassSettingRow(
                 icon: "doc.text.fill",
                 color: AppColors.textSecondary,
@@ -215,6 +228,7 @@ struct ProfileView: View {
                 showChevron: true
             )
         }
+
     }
     
     private var logoutButton: some View {
@@ -347,5 +361,5 @@ struct FutureFeatureCard: View {
 }
 
 #Preview {
-    ProfileView()
+    ProfileView(router: AppRouter())
 }

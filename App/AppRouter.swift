@@ -13,6 +13,7 @@ class AppRouter: ObservableObject {
     @Published var currentView: AppView = .auth
     
     @Published var presentedSheet: Sheet?
+    @Published var isTabBarHidden: Bool = false
     
     enum AppView {
         case onboarding

@@ -77,7 +77,11 @@ struct HomeView: View {
             income: viewModel.income,
             formattedIncome: viewModel.formattedIncome,
             expense: viewModel.expense,
-            formattedExpense: viewModel.formattedExpense
+            formattedExpense: viewModel.formattedExpense,
+            // Datos reales del ciclo financiero
+            cycleDateRange: viewModel.currentCycleRange.isEmpty ? "Cargando..." : viewModel.currentCycleRange,
+            cycleStartDay: viewModel.cycleStartDay,
+            categoryDistributions: viewModel.categoryDistributions
         )
     }
     

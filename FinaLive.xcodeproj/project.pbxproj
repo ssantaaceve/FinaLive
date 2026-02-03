@@ -75,6 +75,7 @@
 				Onboarding/OnboardingViewModel.swift,
 				Profile/ProfileView.swift,
 				Profile/ProfileViewModel.swift,
+				Profile/Views/CycleConfigView.swift,
 			);
 			target = 006650BE2F11E14200A2FDF6 /* FinaLive */;
 		};

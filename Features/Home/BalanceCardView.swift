@@ -18,13 +18,18 @@ struct BalanceCardView: View {
     let expense: Decimal
     let formattedExpense: String
     
-    @State private var showBalance: Bool = true
-    @State private var selectedPeriod: Period = .month
+    // Novedades Fase 3: Datos de Ciclo
+    let cycleDateRange: String      // Ej: "15 Ene - 14 Feb"
+    let cycleStartDay: Int          // Para lógica de nudge (punto rojo)
+    
+    // Novedades Fase Data Viz: Distribución
+    let categoryDistributions: [CategoryDistributionItem]
+    
+    @State private var selectedPeriod: Period = .cycle
+    @State private var showCycleInfoAlert: Bool = false // Nueva alerta educativa
     
     enum Period: String, CaseIterable {
-        case today = "Hoy"
-        case week = "Semana"
-        case month = "Mes"
+        case cycle = "Este Ciclo"
         case year = "Año"
     }
     
@@ -49,66 +54,96 @@ struct BalanceCardView: View {
             
             VStack(alignment: .leading, spacing: 20) {
                 
-                // BLOQUE 1: Header, Selector y Balance (Todo junto y compacto)
+                // BLOQUE 1: Header, Selector y Balance
                 VStack(alignment: .leading, spacing: 6) {
-                    // Fila 1: Título y Ojo
+                    
+                    // Fila 1: Título (Rango de Fechas) y Botones (Config)
                     HStack {
-                        Text("Balance Total")
-                            .font(AppFonts.headline)
-                            .foregroundStyle(AppColors.textPrimary)
+                        // Header Dinámico: Rango de Fechas
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Tu Dinero")
+                                .font(AppFonts.caption)
+                                .foregroundStyle(AppColors.textSecondary)
+                            
+                            Text(cycleDateRange)
+                                .font(AppFonts.headline)
+                                .foregroundStyle(AppColors.textPrimary)
+                        }
                         
                         Spacer()
                         
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                showBalance.toggle()
+                        HStack(spacing: 8) {
+                            // Botón de Configuración con Nudge
+                            Button(action: {
+                                showCycleInfoAlert = true
+                            }) {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(systemName: "info.circle.fill") // Cambio de icono a Info
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundStyle(AppColors.textSecondary.opacity(0.8))
+                                        .frame(width: 32, height: 32)
+                                    
+                                    // Nudge: Sugerir cambio si usa el día por defecto (1)
+                                    if cycleStartDay == 1 {
+                                        Circle()
+                                            .fill(AppColors.warning)
+                                            .frame(width: 8, height: 8)
+                                            .offset(x: 2, y: 2)
+                                    }
+                                }
                             }
-                        }) {
-                            Image(systemName: showBalance ? "eye.fill" : "eye.slash.fill")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(AppColors.textSecondary.opacity(0.8))
-                            .frame(width: 32, height: 32)
+                            .buttonStyle(.plain)
+                            .alert("Personaliza tu Balance", isPresented: $showCycleInfoAlert) {
+                                Button("Entendido", role: .cancel) { }
+                            } message: {
+                                Text("Recuerda que puedes ajustar tu ciclo financiero a tu medida. Dirígete a tu Configuración de Usuario en el Perfil para modificar tu día de corte.")
+                            }
                         }
-                        .buttonStyle(.plain)
                     }
                     
                     // Fila 2: Selector de Periodo (Pegado al título)
                     periodSelector
-                        .padding(.top, 2)
+                        .padding(.top, 4)
                     
                     // Fila 3: Balance Grande (Pegado al selector)
-                    Text(showBalance ? formattedBalance : "••••••••")
+                    Text(formattedBalance)
                         .font(.system(size: 38, weight: .bold, design: .rounded))
                         .foregroundStyle(AppColors.textPrimary)
-                        .contentTransition(.opacity)
-                        .padding(.top, 4) // Ligera separación visual para el número
+                        .padding(.top, 4)
                     
                     // Fila 4: Porcentaje (Pequeño y alineado)
-                    if showBalance {
-                        Text(percentageChange)
-                            .font(.caption) // Más pequeño como pediste
-                            .fontWeight(.medium)
-                            .foregroundStyle(AppColors.success)
-                    }
+                    Text(percentageChange)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(AppColors.success)
                 }
                 .padding(.horizontal, 4)
                 
-                // BLOQUE 2: Cápsulas de Ingresos y Gastos (SIN ICONOS)
+                // BLOQUE 2: Cápsulas de Ingresos y Gastos
                 incomeExpenseCapsules
                 
-                // BLOQUE 3: Burbujas de Categorías
-                if showBalance {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            categoryBubble(icon: "cart.fill", name: "Super", amount: expense * Decimal(0.4), color: .orange)
-                            categoryBubble(icon: "car.fill", name: "Auto", amount: expense * Decimal(0.2), color: .blue)
-                            categoryBubble(icon: "popcorn.fill", name: "Ocio", amount: expense * Decimal(0.15), color: .purple)
-                            categoryBubble(icon: "cross.case.fill", name: "Salud", amount: expense * Decimal(0.1), color: .red)
-                            categoryBubble(icon: "book.fill", name: "Edu", amount: expense * Decimal(0.15), color: .green)
+                // BLOQUE 3: Burbujas de Categorías (Dinámico)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        if categoryDistributions.isEmpty {
+                            // Placeholder si no hay gastos
+                            Text("No hay gastos registrados en este ciclo")
+                                .font(.caption)
+                                .foregroundStyle(AppColors.textSecondary)
+                                .padding(.leading, 4)
+                        } else {
+                            ForEach(categoryDistributions) { item in
+                                categoryBubble(
+                                    icon: item.icon,
+                                    name: item.name, // Podríamos truncar si es muy largo
+                                    amount: item.amount,
+                                    color: item.color
+                                )
+                            }
                         }
-                        .padding(.horizontal, 4)
-                        .padding(.bottom, 2)
                     }
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 2)
                 }
             }
             .padding(20)
@@ -141,7 +176,7 @@ struct BalanceCardView: View {
     // MARK: - Componentes
     
     private var periodSelector: some View {
-        HStack(spacing: 0) { // Spacing 0 para controlar con padding interno
+        HStack(spacing: 0) {
             ForEach(Period.allCases, id: \.self) { period in
                 Button(action: {
                     withAnimation(.easeOut(duration: 0.2)) {
@@ -169,27 +204,26 @@ struct BalanceCardView: View {
         }
     }
     
-    // Nuevas Cápsulas Estilo App (Limpias, sin iconos)
+    // Nuevas Cápsulas Estilo App
     private var incomeExpenseCapsules: some View {
         HStack(spacing: 12) {
-            // Cápsula Ingresos (Verde Sutil)
+            // Cápsula Ingresos
             statCapsule(
                 title: "Ingresos",
                 amount: formattedIncome,
                 color: AppColors.success
             )
             
-            // Cápsula Gastos (Roja Sutil)
+            // Cápsula Gastos
             statCapsule(
                 title: "Gastos",
                 amount: formattedExpense,
-                color: Color.red // Forzamos rojo si AppColors.error varía
+                color: Color.red
             )
         }
     }
     
     private func statCapsule(title: String, amount: String, color: Color) -> some View {
-        // Al quitar el icono, usamos VStack para apilar título y monto
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.caption2)
@@ -197,20 +231,20 @@ struct BalanceCardView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .textCase(.uppercase)
             
-            Text(showBalance ? amount : "••••")
+            Text(amount)
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(AppColors.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading) // Asegura que ocupe el ancho disponible y alinee a la izq
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             RoundedRectangle(cornerRadius: 16)
-                .fill(color.opacity(0.05)) // Fondo muy sutil del color correspondiente
+                .fill(color.opacity(0.05))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(color.opacity(0.15), lineWidth: 1) // Borde sutil del color
+                        .strokeBorder(color.opacity(0.15), lineWidth: 1)
                 )
         }
     }
@@ -249,11 +283,14 @@ struct BalanceCardView: View {
         BalanceCardView(
             balance: Decimal(15420.50),
             formattedBalance: "$15,420.50",
-            percentageChange: "+2.5% vs mes anterior",
+            percentageChange: "+2.5% vs ciclo anterior",
             income: Decimal(2500.00),
             formattedIncome: "$2,500.00",
             expense: Decimal(1249.50),
-            formattedExpense: "$1,249.50"
+            formattedExpense: "$1,249.50",
+            cycleDateRange: "15 Ene - 14 Feb",
+            cycleStartDay: 1, // Prueba con 1 para ver el punto rojo (warning)
+            categoryDistributions: [] // Preview Empty
         )
         .padding()
     }
