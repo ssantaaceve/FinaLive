@@ -9,24 +9,48 @@ import Foundation
 import SwiftUI
 
 /// Modelo de transacción para la app
-struct Transaction: Identifiable {
-    let id = UUID()
+/// Modelo de transacción para la app
+struct Transaction: Identifiable, Codable {
+    let id: UUID
     let type: TransactionType
     let category: String
-    let description: String
-    let amount: Double
+    let description: String? // Opcional en BD
+    let amount: Decimal
     let date: Date
     
-    enum TransactionType {
+    // Necesario para decodificar string "income"/"expense" de la BD
+    enum TransactionType: String, Codable {
         case income
         case expense
+    }
+    
+    // Mapeo entre Swift (camelCase) y Supabase (snake_case)
+    enum CodingKeys: String, CodingKey {
+        case id
+        case type
+        case category
+        case description
+        case amount
+        case date
+        // user_id lo manejamos en el repositorio, no necesariamente aquí si no se usa en UI
+    }
+    
+    // Init personalizado para facilitar previews y mocks
+    init(id: UUID = UUID(), type: TransactionType, category: String, description: String? = nil, amount: Decimal, date: Date) {
+        self.id = id
+        self.type = type
+        self.category = category
+        self.description = description
+        self.amount = amount
+        self.date = date
     }
     
     var formattedAmount: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
-        let formatted = formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
+        // Decimal converso a NSDecimalNumber para formateo
+        let formatted = formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
         return (type == .income ? "+" : "-") + formatted
     }
     

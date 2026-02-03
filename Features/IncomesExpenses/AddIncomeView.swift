@@ -2,7 +2,7 @@
 //  AddIncomeView.swift
 //  FinaLive
 //
-//  Created by Sergio Andres  Santa Acevedo on 13/1/2026.
+//  Created by Sergio Andres Santa Acevedo on 13/1/2026.
 //
 
 import SwiftUI
@@ -10,15 +10,10 @@ import SwiftUI
 /// Vista para registrar un nuevo ingreso
 /// Formulario con efecto glass y campos simplificados
 struct AddIncomeView: View {
+    @StateObject private var viewModel = AddTransactionViewModel()
     @Environment(\.dismiss) var dismiss
     
-    @State private var category: String = ""
-    @State private var amount: String = ""
-    @State private var rawAmount: String = "" // Almacena solo números
-    @State private var description: String = ""
-    @State private var selectedDate: Date = Date()
-    
-    // UI States for Expandable Modules
+    // UI States (Local Display Logic Only)
     @State private var isCategoryExpanded: Bool = false
     @State private var isDateExpanded: Bool = false
     
@@ -74,58 +69,15 @@ struct AddIncomeView: View {
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
-    }
-    
-    // MARK: - Computed Properties
-    
-    private var isFormValid: Bool {
-        !category.isEmpty &&
-        !rawAmount.isEmpty &&
-        getNumericValue(from: rawAmount) > 0 &&
-        !description.isEmpty
-    }
-    
-    // MARK: - Helper Methods
-    
-    /// Convierte el rawAmount (solo números) a valor numérico en formato colombiano
-    private func getNumericValue(from rawValue: String) -> Double {
-        guard !rawValue.isEmpty else { return 0 }
-        // Los últimos 2 dígitos son decimales
-        let totalValue = Double(rawValue) ?? 0
-        return totalValue / 100.0
-    }
-    
-    /// Formatea el número en formato colombiano (1.000.000,50)
-    /// Los últimos 2 dígitos siempre se tratan como decimales
-    private func formatColombianCurrency(_ numbersOnly: String) -> String {
-        guard !numbersOnly.isEmpty else { return "" }
-        
-        // Si solo hay 1 dígito, mostrar como "0,0X"
-        if numbersOnly.count == 1 {
-            return "0,0\(numbersOnly)"
+        .disabled(viewModel.isLoading)
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
-        
-        // Si hay 2 dígitos, mostrar como "0,XX"
-        if numbersOnly.count == 2 {
-            return "0,\(numbersOnly)"
-        }
-        
-        // Separar parte entera y decimales (últimos 2 dígitos)
-        let decimalPart = String(numbersOnly.suffix(2))
-        let integerPart = String(numbersOnly.dropLast(2))
-        
-        // Formatear parte entera con puntos como separadores de miles
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = "."
-        formatter.usesGroupingSeparator = true
-        formatter.maximumFractionDigits = 0
-        
-        let integerValue = Int(integerPart) ?? 0
-        let formattedInteger = formatter.string(from: NSNumber(value: integerValue)) ?? integerPart
-        
-        // Combinar: parte entera + coma + decimales
-        return "\(formattedInteger),\(decimalPart)"
     }
     
     // MARK: - View Components
@@ -162,11 +114,11 @@ struct AddIncomeView: View {
                     }
                 }) {
                     HStack {
-                        if category.isEmpty {
+                        if viewModel.category.isEmpty {
                             Text("Selecciona una categoría")
                                 .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                         } else {
-                            Text(category)
+                            Text(viewModel.category)
                                 .fontWeight(.medium)
                                 .foregroundStyle(AppColors.textPrimary)
                         }
@@ -192,18 +144,18 @@ struct AddIncomeView: View {
                         ForEach(incomeCategories, id: \.self) { cat in
                             Button(action: {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    category = cat
+                                    viewModel.category = cat
                                     isCategoryExpanded = false
                                 }
                             }) {
                                 Text(cat)
                                     .font(.caption)
-                                    .fontWeight(category == cat ? .semibold : .regular)
+                                    .fontWeight(viewModel.category == cat ? .semibold : .regular)
                                     .padding(.vertical, 10)
                                     .padding(.horizontal, 12)
                                     .frame(maxWidth: .infinity)
                                     .background {
-                                        if category == cat {
+                                        if viewModel.category == cat {
                                             RoundedRectangle(cornerRadius: 12)
                                                 .fill(AppColors.success.opacity(0.15)) // Green tint for Income
                                                 .overlay(
@@ -215,7 +167,7 @@ struct AddIncomeView: View {
                                                 .fill(Color.black.opacity(0.2))
                                         }
                                     }
-                                    .foregroundStyle(category == cat ? AppColors.success : AppColors.textSecondary)
+                                    .foregroundStyle(viewModel.category == cat ? AppColors.success : AppColors.textSecondary)
                             }
                             .buttonStyle(.plain)
                         }
@@ -244,7 +196,7 @@ struct AddIncomeView: View {
                     }
                 }) {
                     HStack {
-                        Text(selectedDate.formatted(date: .long, time: .omitted))
+                        Text(viewModel.date.formatted(date: .long, time: .omitted))
                             .fontWeight(.medium)
                             .foregroundStyle(AppColors.textPrimary)
                         
@@ -266,13 +218,13 @@ struct AddIncomeView: View {
                     
                     DatePicker(
                         "",
-                        selection: $selectedDate,
+                        selection: $viewModel.date,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(AppColors.success) // Green for Income
-                    .environment(\.colorScheme, .dark) // Force white text
+                    .environment(\.colorScheme, .dark)
                     .padding(16)
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
@@ -291,32 +243,24 @@ struct AddIncomeView: View {
             HStack(spacing: 4) {
                 Text("$")
                     .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundStyle(rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.3) : AppColors.textPrimary)
+                    .foregroundStyle(viewModel.rawAmount.isEmpty ? AppColors.textPrimary.opacity(0.3) : AppColors.textPrimary)
                 
                 ZStack(alignment: .leading) {
-                    if rawAmount.isEmpty {
+                    if viewModel.rawAmount.isEmpty {
                         Text("0,00")
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundStyle(AppColors.textPrimary.opacity(0.3))
                     }
                     
-                    if !rawAmount.isEmpty {
-                        Text(amount)
+                    if !viewModel.rawAmount.isEmpty {
+                        Text(viewModel.amount)
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundStyle(AppColors.textPrimary)
                     }
                     
                     TextField("", text: Binding(
-                        get: { rawAmount },
-                        set: { newValue in
-                            let numbersOnly = newValue.filter { $0.isNumber }
-                            rawAmount = numbersOnly
-                            if numbersOnly.isEmpty {
-                                amount = ""
-                            } else {
-                                amount = formatColombianCurrency(numbersOnly)
-                            }
-                        }
+                        get: { viewModel.rawAmount },
+                        set: { viewModel.updateAmount($0) }
                     ))
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .keyboardType(.numberPad)
@@ -342,13 +286,13 @@ struct AddIncomeView: View {
                 .padding(.leading, 4)
             
             ZStack(alignment: .leading) {
-                if description.isEmpty {
+                if viewModel.description.isEmpty {
                     Text("Ej: Pago de nómina")
                         .foregroundStyle(AppColors.textPrimary.opacity(0.3))
                         .padding(.horizontal, 4)
                 }
                 
-                TextField("", text: $description)
+                TextField("", text: $viewModel.description)
                     .foregroundStyle(AppColors.textPrimary)
                     .tint(AppColors.success)
                     .focused($focusedField, equals: .description)
@@ -362,36 +306,50 @@ struct AddIncomeView: View {
     
     private var saveButton: some View {
         Button(action: {
-            // TODO: Guardar ingreso
-            dismiss()
-        }) {
-            Text("Guardar Ingreso")
-                .font(AppFonts.headline)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.success, 
-                                    AppColors.success.opacity(0.7)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .shadow(color: AppColors.success.opacity(0.4), radius: 10, x: 0, y: 5)
+            Task {
+                await viewModel.saveTransaction(type: .income) {
+                    dismiss()
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
+            }
+        }) {
+            if viewModel.isLoading {
+                ProgressView()
+                    .tint(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(AppColors.success.opacity(0.5))
+                    }
+            } else {
+                Text("Guardar Ingreso")
+                    .font(AppFonts.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        AppColors.success,
+                                        AppColors.success.opacity(0.7)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .shadow(color: AppColors.success.opacity(0.4), radius: 10, x: 0, y: 5)
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+            }
         }
-        .disabled(!isFormValid)
-        .opacity(isFormValid ? 1.0 : 0.5)
-        .animation(.easeInOut, value: isFormValid)
+        .disabled(!viewModel.isFormValid || viewModel.isLoading)
+        .opacity((viewModel.isFormValid && !viewModel.isLoading) ? 1.0 : 0.5)
+        .animation(.easeInOut, value: viewModel.isFormValid)
     }
 }
 

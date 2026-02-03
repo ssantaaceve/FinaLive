@@ -218,12 +218,138 @@ Siempre se trabaja en un solo feature a la vez.
 
 - [x] Setup del proyecto
 - [x] Git y GitHub configurados
-- [ ] Onboarding
-- [ ] Home
-- [ ] Registro de ingresos y gastos
+- [x] Onboarding
+- [x] Home
+- [x] Registro de ingresos y gastos
 - [ ] Persistencia con Supabase
 - [ ] IA ligera (insights)
 - [ ] Monetización
+
+---
+
+## 🗺️ Backend Roadmap & Architecture (Supabase)
+
+### 1. Análisis y Diseño de Base de Datos (Schema Definition)
+
+- [ ] **Definición de Tablas (PostgreSQL)**
+  - `profiles`
+    - `id` (UUID, PK, references `auth.users`)
+    - `email` (TEXT)
+    - `full_name` (TEXT)
+    - `avatar_url` (TEXT)
+    - `created_at` (TIMESTAMPTZ)
+  - `user_stats` (Separado para performance y triggers)
+    - `user_id` (UUID, PK, references `profiles.id`)
+    - `current_level` (INT)
+    - `current_points` (INT)
+    - `next_level_points` (INT)
+    - `level_name` (TEXT)
+  - `transactions`
+    - `id` (UUID, PK)
+    - `user_id` (UUID, references `profiles.id`)
+    - `type` (TEXT check: 'income', 'expense')
+    - `category` (TEXT)
+    - `description` (TEXT)
+    - `amount` (DECIMAL(12,2) - **Importante usar Decimal**)
+    - `date` (TIMESTAMPTZ)
+  - `goals`
+    - `id` (UUID, PK)
+    - `user_id` (UUID, references `profiles.id`)
+    - `name` (TEXT)
+    - `target_amount` (DECIMAL(12,2))
+    - `current_amount` (DECIMAL(12,2))
+    - `icon` (TEXT)
+    - `reward` (TEXT)
+    - `is_completed` (BOOLEAN)
+  - `notifications`
+    - `id` (UUID, PK)
+    - `user_id` (UUID, references `profiles.id`)
+    - `title` (TEXT)
+    - `message` (TEXT)
+    - `is_read` (BOOLEAN)
+    - `created_at` (TIMESTAMPTZ)
+
+- [ ] **Vistas SQL (Views)**
+  - `view_user_balance`: Calcular `SUM(income) - SUM(expenses)` por `user_id` directamente en BD.
+
+### 2. Seguridad y Privacidad (The "Supabase Way")
+
+- [ ] **Row Level Security (RLS)**
+  - Habilitar RLS en **todas** las tablas.
+  - Políticas: `auth.uid() == user_id` para SELECT, INSERT, UPDATE, DELETE.
+  - Nadie puede leer datos de otros usuarios.
+
+- [ ] **Auth & Onboarding**
+  - Implementar Trigger en `auth.users` -> `after insert` -> crear fila en `public.profiles` y `public.user_stats`.
+  - Manejo de usuarios anónimos (si aplica) con upgrade a correo.
+
+### 3. Lógica de Negocio (Edge Functions / Triggers)
+
+- [ ] **Triggers Automáticos**
+  - `on_transaction_insert`: Actualizar `goals` si aplica o recalcular estadísticas.
+  - `on_goal_update`: Si `current_amount >= target_amount`, disparar notificación y sumar puntos en `user_stats`.
+  - `on_level_up`: Detectar cambio de nivel y asignar nuevo `level_name`.
+
+### 4. Integración iOS (Clean Architecture)
+
+- [ ] **Patrón Repository**
+  - Crear protocolos: `TransactionRepository`, `GoalRepository`, `UserRepository`.
+  - Implementar `SupabaseTransactionRepository` que cumpla el protocolo.
+  - Inyectar dependencias en ViewModels (ej: `HomeViewModel(repository: SupabaseTransactionRepository())`).
+  - **Objetivo:** ViewModels no deben importar `Supabase` directamente, solo interfaces.
+
+### 5. Notificaciones Push
+
+- [ ] **Integración APNs**
+  - Configurar certificados de Apple en Supabase.
+  - Crear tabla `user_devices` para guardar `fcm_token` o `device_token`.
+  - Edge Function `send_push` que se invoque desde triggers de base de datos (ej: Meta cumplida).
+
+---
+
+### ⚠️ Recomendaciones Inmediatas (Refactor Pre-Migración)
+
+- [ ] **Tipos de Datos:** Cambiar `Double` por `Decimal` en `Transaction` y `Goal` para evitar errores de punto flotante en dinero.
+- [ ] **Modelos:** Extraer la struct `Goal` (actualmente en `GoalsProgressCardView`) a `Core/Models/Goal.swift`.
+- [ ] **Fechas:** Estandarizar el manejo de fechas a UTC antes de enviar a Supabase.
+
+---
+
+## 📂 Estructura de Carpetas Sugerida (Clean Architecture)
+
+Para integrar el backend sin "ensuciar" las vistas, recomiendamos esta estructura. NO pongas código de Supabase directamente dentro de `Features`.
+
+```text
+FinaLive
+├── App
+│   └── FinaLiveApp.swift (Inyección de dependencias aquí)
+├── Core
+│   ├── Models (Structs puros: Transaction, Goal, UserProfile)
+│   ├── Services (Clientes externos)
+│   │   └── SupabaseService.swift (Singleton del cliente Supabase)
+│   └── Data (Capa de Datos)
+│       ├── Repositories (Implementación real)
+│       │   ├── SupabaseTransactionRepository.swift
+│       │   ├── SupabaseGoalRepository.swift
+│       │   └── SupabaseAuthRepository.swift
+│       └── Protocols (Contratos/Interfaces)
+│           ├── TransactionRepositoryProtocol.swift
+│           └── AuthRepositoryProtocol.swift
+├── Features (Solo UI y Lógica de Vista)
+│   ├── Home
+│   │   ├── Views
+│   │   └── ViewModels
+│   │       └── HomeViewModel.swift (Solo habla con Protocolos, no con Supabase directo)
+...
+```
+
+### ¿Por qué así?
+1.  **Features:** Solo saben de UI y de "que alguien les traiga datos" (vía Protocolos).
+2.  **Core/Data:** Es el único lugar que sabe que existe Supabase. Si mañana cambias a Firebase, solo tocas esta carpeta.
+3.  **Inyección:** En `FinaLiveApp`, le dices al ViewModel: _"Toma, usa este `SupabaseTransactionRepository`"_.
+
+---
+
 
 
 

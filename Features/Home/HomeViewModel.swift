@@ -11,18 +11,30 @@ import Foundation
 /// Maneja la lógica de presentación de datos y acciones del usuario
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var balance: Double = 0.0
-    @Published var income: Double = 0.0
-    @Published var expense: Double = 0.0
+    private let transactionRepository: TransactionRepositoryProtocol
+    
+    @Published var balance: Decimal = 0.0
+    @Published var income: Decimal = 0.0
+    @Published var expense: Decimal = 0.0
     @Published var percentageChange: String = ""
     @Published var isLoading: Bool = false
-    @Published var userName: String = "Sergio"
+    @Published var userName: String = "Sergio" // TODO: Cargar del perfil real
     @Published var hasNotifications: Bool = false
     @Published var goals: [GoalsProgressCardView.Goal] = []
     @Published var recentTransactions: [Transaction] = []
+    @Published var errorMessage: String?
     
-    init() {
-        loadData()
+    init(transactionRepository: TransactionRepositoryProtocol = SupabaseTransactionRepository()) {
+        self.transactionRepository = transactionRepository
+        
+        // Suscribirse a cambios en transacciones para recarga automática
+        NotificationCenter.default.addObserver(forName: .didUpdateTransactions, object: nil, queue: .main) { [weak self] _ in
+            self?.loadData()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     var formattedBalance: String {
@@ -37,22 +49,60 @@ class HomeViewModel: ObservableObject {
         formatCurrency(expense)
     }
     
-    private func formatCurrency(_ amount: Double) -> String {
+    private func formatCurrency(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale.current
-        return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
+        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
     }
     
     func loadData() {
-        // TODO: Cargar datos de transacciones desde servicio
-        // Valores mock para desarrollo visual
-        balance = 15420.50
-        income = 2500.00
-        expense = 1249.50
-        percentageChange = "+2.5% vs mes anterior"
+        Task {
+            await refreshAsync()
+        }
+    }
+    
+    func refreshAsync() async {
+        isLoading = true
+        errorMessage = nil
         
-        // Metas mock
+        do {
+            let transactions = try await transactionRepository.fetchTransactions()
+            self.recentTransactions = transactions
+            calculateBalance(from: transactions)
+            
+            // TODO: Cargar metas reales
+            loadMockGoals()
+            
+        } catch {
+            errorMessage = "Error cargando datos: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+    
+    private func calculateBalance(from transactions: [Transaction]) {
+        var newIncome: Decimal = 0
+        var newExpense: Decimal = 0
+        
+        for transaction in transactions {
+            if transaction.type == .income {
+                newIncome += transaction.amount
+            } else {
+                newExpense += transaction.amount
+            }
+        }
+        
+        self.income = newIncome
+        self.expense = newExpense
+        self.balance = newIncome - newExpense
+        
+        // Simulado por ahora
+        self.percentageChange = "+0% vs mes anterior"
+    }
+    
+    private func loadMockGoals() {
+        // Metas mock temporales hasta que migremos Goals
         goals = [
             GoalsProgressCardView.Goal(
                 name: "Viaje a Europa",
@@ -67,56 +117,7 @@ class HomeViewModel: ObservableObject {
                 targetAmount: 10000.0,
                 icon: "shield.fill",
                 reward: "Tasa Preferencial"
-            ),
-            GoalsProgressCardView.Goal(
-                name: "Renovación del hogar",
-                currentAmount: 800.0,
-                targetAmount: 3000.0,
-                icon: "house.fill",
-                reward: "Decoración Premium"
             )
         ]
-        
-        // Transacciones recientes mock
-        let now = Date()
-        recentTransactions = [
-            Transaction(
-                type: .expense,
-                category: "Compras",
-                description: "Supermercado",
-                amount: 125.50,
-                date: now
-            ),
-            Transaction(
-                type: .expense,
-                category: "Alimentación",
-                description: "Café y desayuno",
-                amount: 15.00,
-                date: Calendar.current.date(byAdding: .hour, value: -5, to: now) ?? now
-            ),
-            Transaction(
-                type: .income,
-                category: "Salario",
-                description: "Pago quincenal",
-                amount: 2500.00,
-                date: Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
-            ),
-            Transaction(
-                type: .expense,
-                category: "Servicios",
-                description: "Arriendo",
-                amount: 800.00,
-                date: Calendar.current.date(byAdding: .day, value: -5, to: now) ?? now
-            )
-        ]
-        
-        isLoading = false
-    }
-    
-    func refreshAsync() async {
-        isLoading = true
-        // Simular carga asíncrona
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        loadData()
     }
 }

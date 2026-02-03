@@ -53,11 +53,92 @@ struct LoginView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .minimumScaleFactor(0.8)
                     
-                    // Button Group
+                    // Button Group & Inputs
                     VStack(spacing: AppSpacing.md) {
-                         // Botón Simulado
+                        
+                        // Error Message
+                        if let error = viewModel.errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(AppColors.error)
+                                .multilineTextAlignment(.center)
+                        }
+                        
+                        // Campos de Texto
+                        VStack(spacing: AppSpacing.sm) {
+                            TextField("Correo electrónico", text: $viewModel.email)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .padding()
+                                .background(AppColors.surfacePrimary.opacity(0.3))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(AppColors.textSecondary.opacity(0.3), lineWidth: 1)
+                                )
+                                .foregroundStyle(AppColors.textPrimary)
+                            
+                            SecureField("Contraseña", text: $viewModel.password)
+                                .padding()
+                                .background(AppColors.surfacePrimary.opacity(0.3))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(AppColors.textSecondary.opacity(0.3), lineWidth: 1)
+                                )
+                                .foregroundStyle(AppColors.textPrimary)
+                        }
+                        
+                        // Botones de Acción
+                        HStack(spacing: AppSpacing.md) {
+                            Button(action: {
+                                Task { await viewModel.signIn() }
+                            }) {
+                                Text("Entrar")
+                                    .font(AppFonts.body.bold())
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(AppColors.primary)
+                                    .cornerRadius(8)
+                            }
+                            
+                            Button(action: {
+                                Task { await viewModel.signUp() }
+                            }) {
+                                Text("Registrarse")
+                                    .font(AppFonts.body.bold())
+                                    .foregroundStyle(AppColors.primary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(AppColors.primary.opacity(0.1))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(AppColors.primary, lineWidth: 1)
+                                    )
+                            }
+                        }
+                        .disabled(viewModel.isLoading)
+                        .opacity(viewModel.isLoading ? 0.7 : 1.0)
+                        
+                        // Terms Text
+                        Text("Al continuar aceptas nuestros términos y condiciones.")
+                            .font(.caption2)
+                            .foregroundStyle(AppColors.textSecondary.opacity(0.6))
+                        
+                        // Divider
+                        HStack {
+                            Rectangle().frame(height: 1).foregroundColor(AppColors.textSecondary.opacity(0.2))
+                            Text("O").font(.caption).foregroundColor(AppColors.textSecondary)
+                            Rectangle().frame(height: 1).foregroundColor(AppColors.textSecondary.opacity(0.2))
+                        }
+                        .padding(.vertical, 5)
+                        
+                        // Apple Sign In Button (Restored)
                         Button(action: {
-                            executeLogin()
+                            // TODO: Implementar lógica real con Supabase Auth Apple Provider
+                            Task { await viewModel.handleAppleLogin() }
                         }) {
                             HStack(spacing: 6) {
                                 Image(systemName: "apple.logo")
@@ -73,13 +154,6 @@ struct LoginView: View {
                             .background(Color.white)
                             .cornerRadius(8)
                         }
-                        .disabled(viewModel.isLoading)
-                        .opacity(viewModel.isLoading ? 0.7 : 1.0)
-                        
-                        // Terms Text
-                        Text("Al continuar aceptas nuestros términos y condiciones.")
-                            .font(.caption2)
-                            .foregroundStyle(AppColors.textSecondary.opacity(0.6))
                     }
                 }
                 .padding(.horizontal, AppSpacing.lg)

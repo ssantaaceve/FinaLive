@@ -55,6 +55,9 @@ struct HomeView: View {
             .refreshable {
                 await viewModel.refreshAsync()
             }
+            .task {
+                await viewModel.refreshAsync()
+            }
         }
     }
     

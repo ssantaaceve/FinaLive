@@ -51,7 +51,7 @@ struct TransactionRowView: View {
     private var transactionInfo: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             // Descripción principal
-            Text(transaction.description)
+            Text(transaction.description ?? transaction.category)
                 .font(AppFonts.headline)
                 .fontWeight(.medium)
                 .foregroundStyle(AppColors.textPrimary)
@@ -92,7 +92,7 @@ struct TransactionRowView: View {
                 type: .expense,
                 category: "Compras",
                 description: "Supermercado",
-                amount: 125.50,
+                amount: Decimal(125.50),
                 date: Date()
             )
         )
@@ -102,7 +102,7 @@ struct TransactionRowView: View {
                 type: .income,
                 category: "Salario",
                 description: "Pago quincenal",
-                amount: 2500.00,
+                amount: Decimal(2500.00),
                 date: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
             )
         )

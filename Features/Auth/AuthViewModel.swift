@@ -14,37 +14,79 @@ class AuthViewModel: ObservableObject {
     // MARK: - Properties
     
     weak var router: AppRouter?
+    private let authRepository: AuthRepositoryProtocol
     
     // MARK: - Published Properties
     
-
+    @Published var email: String = ""
+    @Published var password: String = ""
     @Published var isAuthenticated: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
-    init(router: AppRouter?) {
+    init(router: AppRouter?, authRepository: AuthRepositoryProtocol = SupabaseAuthRepository()) {
         self.router = router
+        self.authRepository = authRepository
     }
     
-    // MARK: - Login Properties
-    // Login se maneja exclusivamente con Apple ID / Keyless
+    // MARK: - Auth Actions
     
-    // MARK: - Actions
-    
-    // Login con Apple ID (Simulado para MVP)
+    // TODO: Remover Apple Login simulado
     func handleAppleLogin() async {
-        clearError()
-        isLoading = true
+        // Mantenemos esto por si la UI lo llama, pero redirige a signIn
+        await signIn()
+    }
+    
+    func signIn() async {
+        guard validateInput() else { return }
         
-        // Simulación de network delay
-        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5s
+        isLoading = true
+        clearError()
+        
+        do {
+            try await authRepository.signIn(email: email, password: password)
+            isAuthenticated = true
+            navigateToNextScreen()
+        } catch {
+            errorMessage = "Error al iniciar sesión: \(error.localizedDescription)"
+        }
         
         isLoading = false
-        isAuthenticated = true
+    }
+    
+    func signUp() async {
+        guard validateInput() else { return }
         
-        // Navegación vía Router
-        // Nota: La vista reacciona a isAuthenticated o usa el closure, mantenemos ambos para flexibilidad
-        await MainActor.run {
+        isLoading = true
+        clearError()
+        
+        do {
+            try await authRepository.signUp(email: email, password: password)
+            isAuthenticated = true
+            navigateToNextScreen()
+        } catch {
+            errorMessage = "Error al registrarse: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func validateInput() -> Bool {
+        if email.isEmpty || password.isEmpty {
+            errorMessage = "Por favor completa todos los campos"
+            return false
+        }
+        if password.count < 6 {
+            errorMessage = "La contraseña debe tener al menos 6 caracteres"
+            return false
+        }
+        return true
+    }
+    
+    private func navigateToNextScreen() {
+        Task {
             router?.navigateToOnboarding()
         }
     }

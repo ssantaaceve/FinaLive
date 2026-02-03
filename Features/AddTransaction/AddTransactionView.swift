@@ -20,12 +20,15 @@ struct AddTransactionView: View {
         case description
     }
     
+    // Local state for type selection since ViewModel doesn't hold it directly (it's passed to save)
+    @State private var selectedType: Transaction.TransactionType = .expense
+    
     var body: some View {
         NavigationStack {
             Form {
                 transactionTypeSection
                 informationSection
-                savingsSection
+                // savingsSection was removed as it's not in the new model yet
             }
             .navigationTitle("Nueva Transacción")
             .navigationBarTitleDisplayMode(.inline)
@@ -38,12 +41,23 @@ struct AddTransactionView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Guardar") {
-                        viewModel.saveTransaction()
-                        dismiss()
+                        Task {
+                            await viewModel.saveTransaction(type: selectedType) {
+                                dismiss()
+                            }
+                        }
                     }
-                    .disabled(!viewModel.isValid)
+                    .disabled(!viewModel.isFormValid)
                     .fontWeight(.semibold)
                 }
+            }
+            .alert("Error", isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
             }
         }
     }
@@ -52,9 +66,9 @@ struct AddTransactionView: View {
     
     private var transactionTypeSection: some View {
         Section {
-            Picker("Tipo", selection: $viewModel.isIncome) {
-                Text("Ingreso").tag(true)
-                Text("Gasto").tag(false)
+            Picker("Tipo", selection: $selectedType) {
+                Text("Ingreso").tag(Transaction.TransactionType.income)
+                Text("Gasto").tag(Transaction.TransactionType.expense)
             }
             .pickerStyle(.segmented)
         } header: {
@@ -67,22 +81,22 @@ struct AddTransactionView: View {
             HStack {
                 Text("$")
                     .foregroundStyle(AppColors.textSecondary)
-                TextField("0.00", text: $viewModel.amount)
-                    .keyboardType(.decimalPad)
-                    .focused($focusedField, equals: .amount)
+                // Usamos Binding personalizado para rawAmount
+                TextField("0,00", text: Binding(
+                    get: { viewModel.rawAmount },
+                    set: { viewModel.updateAmount($0) }
+                ))
+                .keyboardType(.numberPad)
+                .focused($focusedField, equals: .amount)
             }
+            
+            TextField("Categoría", text: $viewModel.category)
             
             TextField("Descripción", text: $viewModel.description, axis: .vertical)
                 .lineLimit(3...6)
                 .focused($focusedField, equals: .description)
         } header: {
             Text("Información")
-        }
-    }
-    
-    private var savingsSection: some View {
-        Section {
-            Toggle("Marcar como ahorro", isOn: $viewModel.isSaving)
         }
     }
 }

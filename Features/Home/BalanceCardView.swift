@@ -10,12 +10,12 @@ import SwiftUI
 /// Card de balance con toggle de visibilidad y variación porcentual
 /// Estilo premium glass/liquid glass con gradiente decorativo
 struct BalanceCardView: View {
-    let balance: Double
+    let balance: Decimal
     let formattedBalance: String
     let percentageChange: String
-    let income: Double
+    let income: Decimal
     let formattedIncome: String
-    let expense: Double
+    let expense: Decimal
     let formattedExpense: String
     
     @State private var showBalance: Bool = true
@@ -65,9 +65,9 @@ struct BalanceCardView: View {
                             }
                         }) {
                             Image(systemName: showBalance ? "eye.fill" : "eye.slash.fill")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(AppColors.textSecondary.opacity(0.8))
-                                .frame(width: 32, height: 32)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(AppColors.textSecondary.opacity(0.8))
+                            .frame(width: 32, height: 32)
                         }
                         .buttonStyle(.plain)
                     }
@@ -100,11 +100,11 @@ struct BalanceCardView: View {
                 if showBalance {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            categoryBubble(icon: "cart.fill", name: "Super", amount: expense * 0.4, color: .orange)
-                            categoryBubble(icon: "car.fill", name: "Auto", amount: expense * 0.2, color: .blue)
-                            categoryBubble(icon: "popcorn.fill", name: "Ocio", amount: expense * 0.15, color: .purple)
-                            categoryBubble(icon: "cross.case.fill", name: "Salud", amount: expense * 0.1, color: .red)
-                            categoryBubble(icon: "book.fill", name: "Edu", amount: expense * 0.15, color: .green)
+                            categoryBubble(icon: "cart.fill", name: "Super", amount: expense * Decimal(0.4), color: .orange)
+                            categoryBubble(icon: "car.fill", name: "Auto", amount: expense * Decimal(0.2), color: .blue)
+                            categoryBubble(icon: "popcorn.fill", name: "Ocio", amount: expense * Decimal(0.15), color: .purple)
+                            categoryBubble(icon: "cross.case.fill", name: "Salud", amount: expense * Decimal(0.1), color: .red)
+                            categoryBubble(icon: "book.fill", name: "Edu", amount: expense * Decimal(0.15), color: .green)
                         }
                         .padding(.horizontal, 4)
                         .padding(.bottom, 2)
@@ -215,7 +215,7 @@ struct BalanceCardView: View {
         }
     }
     
-    private func categoryBubble(icon: String, name: String, amount: Double, color: Color) -> some View {
+    private func categoryBubble(icon: String, name: String, amount: Decimal, color: Color) -> some View {
         Button(action: {}) {
             VStack(spacing: 6) {
                 ZStack {
@@ -247,12 +247,12 @@ struct BalanceCardView: View {
     ZStack {
         AppBackground()
         BalanceCardView(
-            balance: 15420.50,
+            balance: Decimal(15420.50),
             formattedBalance: "$15,420.50",
             percentageChange: "+2.5% vs mes anterior",
-            income: 2500.00,
+            income: Decimal(2500.00),
             formattedIncome: "$2,500.00",
-            expense: 1249.50,
+            expense: Decimal(1249.50),
             formattedExpense: "$1,249.50"
         )
         .padding()
