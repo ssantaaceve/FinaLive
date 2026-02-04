@@ -218,25 +218,7 @@ struct ProfileView: View {
                 isOn: $viewModel.notificationsEnabled
             )
             
-            // Botón de Prueba (Solo para Dev/MVP)
-            Button(action: {
-                NotificationManager.shared.scheduleTestNotification()
-            }) {
-                HStack(spacing: AppSpacing.md) {
-                    ZStack {
-                        Circle().fill(Color.blue.opacity(0.15)).frame(width: 36, height: 36)
-                        Image(systemName: "play.fill").font(.system(size: 14)).foregroundStyle(.blue)
-                    }
-                    Text("Probar Notificación (5s)")
-                        .font(AppFonts.body).foregroundStyle(AppColors.textPrimary)
-                    Spacer()
-                    Text("DEV").font(.caption2).fontWeight(.bold).padding(4).background(Color.blue.opacity(0.2)).cornerRadius(4)
-                }
-                .padding(AppSpacing.md)
-                .background { RoundedRectangle(cornerRadius: 16).fill(AppColors.surfacePrimary.opacity(0.6)) }
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppColors.border.opacity(0.3), lineWidth: 0.5))
-            }
-            .buttonStyle(.plain)
+
             
             GlassSettingRow(
                 icon: "faceid",
