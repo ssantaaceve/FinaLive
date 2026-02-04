@@ -22,7 +22,16 @@ struct ProfileView: View {
                     // 2. Gamification Module
                     gamificationSection
                     
-                    // 3. Coming Soon Card
+                    // 3. Rewards Card (New MVP)
+                    FutureFeatureCard(
+                        iconName: "gift.fill",
+                        title: "Beneficios Exclusivos",
+                        subtitle: "Gana premios por tu buen comportamiento."
+                    ) {
+                        viewModel.showRewardsAlert = true
+                    }
+                    
+                    // 4. Budget Coming Soon
                     FutureFeatureCard(
                         iconName: "chart.pie.fill",
                         title: "Presupuesto Inteligente",
@@ -49,6 +58,11 @@ struct ProfileView: View {
                 Button("Entendido", role: .cancel) { }
             } message: {
                 Text("¡Estamos trabajando en ello! Muy pronto podrás definir límites inteligentes.")
+            }
+            .alert("¡Muy Pronto! 🎁", isPresented: $viewModel.showRewardsAlert) {
+                Button("Genial", role: .cancel) { }
+            } message: {
+                Text("Estamos preparando un sistema de recompensas único para ti. ¡Mantente atento!")
             }
         }
     }

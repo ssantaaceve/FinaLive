@@ -20,6 +20,7 @@ class ProfileViewModel: ObservableObject {
     @Published var userEmail: String = "sergio@example.com"
     @Published var memberSince: String = "Miembro desde 2026"
     @Published var userInitial: String = "S"
+    @Published var showRewardsAlert: Bool = false
     
     // MARK: - Gamification Stats
     @Published var currentLevel: Int = 5

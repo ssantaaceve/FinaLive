@@ -36,7 +36,7 @@ struct HomeView: View {
                         LazyVStack(spacing: 16) { // Compact Vertical Rhythm
                             balanceCard
                             
-                            goalsProgressCard
+                            // goalsProgressCard
                             
                             recentTransactionsView
                             
