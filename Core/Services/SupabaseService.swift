@@ -21,4 +21,14 @@ class SupabaseService {
             supabaseKey: AppConfig.supabaseAnonKey
         )
     }
+    
+    // Check for active session
+    func hasActiveSession() async -> Bool {
+        do {
+            _ = try await client.auth.session
+            return true
+        } catch {
+            return false
+        }
+    }
 }

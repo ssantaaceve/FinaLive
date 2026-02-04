@@ -12,6 +12,25 @@ import SwiftUI
 class AppRouter: ObservableObject {
     @Published var currentView: AppView = .auth
     
+    init() {
+        checkSession()
+    }
+    
+    private func checkSession() {
+        Task {
+            // Verificar si hay sesión activa en Supabase
+            if await SupabaseService.shared.hasActiveSession() {
+                await MainActor.run {
+                    self.currentView = .home
+                }
+            } else {
+                await MainActor.run {
+                    self.currentView = .auth
+                }
+            }
+        }
+    }
+    
     @Published var presentedSheet: Sheet?
     @Published var isTabBarHidden: Bool = false
     

@@ -25,7 +25,7 @@ struct FinaLiveApp: App {
         case .auth:
             AuthView(router: router)
         case .home:
-            MainContainerView()
+            MainContainerView(router: router)
         }
     }
 }

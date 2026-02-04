@@ -10,7 +10,7 @@ import SwiftUI
 /// Vista contenedora principal que gestiona la navegación global
 /// Mantiene la barra de navegación inferior persistente entre secciones
 struct MainContainerView: View {
-    @StateObject private var router = AppRouter()
+    @ObservedObject var router: AppRouter
     @State private var selectedTab: HomeBottomNavigationView.BottomTab = .home
     @State private var homeNavigationPath = NavigationPath() // State hoisted
     @State private var hasAppeared = false
@@ -160,5 +160,5 @@ private struct TransactionSheetsModifier: ViewModifier {
 }
 
 #Preview {
-    MainContainerView()
+    MainContainerView(router: AppRouter())
 }

@@ -90,4 +90,27 @@ class NotificationManager: NSObject {
         center.removePendingNotificationRequests(withIdentifiers: [pendingID])
         print("🗑️ Recordatorio diario eliminado")
     }
+    
+    // MARK: - Testing / Debug
+    
+    /// Programa una notificación de prueba para dentro de 5 segundos
+    func scheduleTestNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "🔔 Prueba de FinaLive"
+        content.body = "¡Esta es una notificación de prueba! Funciona perfecto."
+        content.sound = .default
+        
+        // Trigger de intervalo (5 segundos)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        
+        let request = UNNotificationRequest(identifier: "test_notification", content: content, trigger: trigger)
+        
+        center.add(request) { error in
+            if let error = error {
+                print("❌ Error en prueba: \(error)")
+            } else {
+                print("✅ Notificación de prueba en 5 segundos... ¡Sal de la app!")
+            }
+        }
+    }
 }

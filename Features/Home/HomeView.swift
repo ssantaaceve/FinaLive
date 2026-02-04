@@ -133,10 +133,18 @@ struct HomeView: View {
                 .font(AppFonts.headline)
                 .foregroundStyle(AppColors.textSecondary)
             
-            Text("Toca el botón + para agregar tu primera transacción")
-                .font(AppFonts.body)
-                .foregroundStyle(AppColors.textSecondary.opacity(0.7))
-                .multilineTextAlignment(.center)
+            VStack(spacing: 8) {
+                Image(systemName: "arrow.up.and.down")
+                    .font(.title3)
+                    .foregroundStyle(AppColors.primary.opacity(0.8))
+                    .padding(.bottom, 4)
+                
+                Text("Desliza el botón + hacia arriba o abajo para registrar tu primer Gasto o Ingreso.")
+                    .font(AppFonts.body)
+                    .foregroundStyle(AppColors.textSecondary.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+            }
         }
         .padding(.vertical, AppSpacing.lg + AppSpacing.md)
     }

@@ -46,7 +46,11 @@ class AuthViewModel: ObservableObject {
         do {
             try await authRepository.signIn(email: email, password: password)
             isAuthenticated = true
-            navigateToNextScreen()
+            
+            // Login exitoso -> Home (Usuario recurrente)
+            Task { @MainActor in
+                router?.navigateToHome()
+            }
         } catch {
             errorMessage = "Error al iniciar sesión: \(error.localizedDescription)"
         }
@@ -63,7 +67,11 @@ class AuthViewModel: ObservableObject {
         do {
             try await authRepository.signUp(email: email, password: password)
             isAuthenticated = true
-            navigateToNextScreen()
+            
+            // Registro exitoso -> Onboarding (Primera vez)
+            Task { @MainActor in
+                router?.navigateToOnboarding()
+            }
         } catch {
             errorMessage = "Error al registrarse: \(error.localizedDescription)"
         }
@@ -85,13 +93,7 @@ class AuthViewModel: ObservableObject {
         return true
     }
     
-    private func navigateToNextScreen() {
-        Task {
-            router?.navigateToOnboarding()
-        }
-    }
-    
-    // MARK: - Private
+    // MARK: - Private Helper
     
     private func clearError() {
         errorMessage = nil
