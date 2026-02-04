@@ -74,6 +74,12 @@ class AddTransactionViewModel: ObservableObject {
             // Notificar que hubo cambios para que recarguen datos
             NotificationCenter.default.post(name: .didUpdateTransactions, object: nil)
             
+            // Solicitar permisos de notificación (Solo la primera vez)
+            // Esto asegura onboarding progresivo tras una acción de valor
+            if !UserDefaults.standard.bool(forKey: "hasRequestedNotificationPermission") {
+                NotificationManager.shared.requestAuthorization()
+            }
+            
             isLoading = false
             onSuccess()
         } catch {

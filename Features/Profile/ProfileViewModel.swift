@@ -35,6 +35,9 @@ class ProfileViewModel: ObservableObject {
     
     init(userRepository: UserRepositoryProtocol = SupabaseUserRepository()) {
         self.userRepository = userRepository
+        // Cargar estado inicial (Opcional, o asumir true si tiene permisos)
+        // Por ahora lo dejamos en true por defecto o lo leemos si queremos persistencia real
+        // self.notificationsEnabled = UserDefaults.standard.bool(forKey: "hasNotificationsEnabled") 
         Task { await loadProfile() }
     }
     
@@ -80,8 +83,25 @@ class ProfileViewModel: ObservableObject {
     }
     
     func toggleNotifications() {
-        // Lógica para persistir preferencia
         print("Notificaciones: \(notificationsEnabled)")
+        
+        if notificationsEnabled {
+            // Activar: Programar recordatorio
+            // Primero verificamos permisos, si no tiene, pedimos (aunque idealmente ya los dio)
+            NotificationManager.shared.requestAuthorization { granted, _ in
+                if granted {
+                    NotificationManager.shared.scheduleDailyReminder()
+                } else {
+                    // Si deniega, apagamos el toggle visualmente
+                    DispatchQueue.main.async {
+                        self.notificationsEnabled = false
+                    }
+                }
+            }
+        } else {
+            // Desactivar: Cancelar recordatorio
+            NotificationManager.shared.cancelDailyReminder()
+        }
     }
     
     func toggleFaceID() {
